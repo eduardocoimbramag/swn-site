@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import OrbitalRings from './svg/OrbitalRings';
-import PillarMark from './svg/PillarMark';
+import { WindIcon, MuseIcon, RocketIcon } from './svg/PillarIcons';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
@@ -14,17 +14,20 @@ const pillars = [
   {
     key: 'sutileza',
     title: 'Sutileza',
-    text: 'Design limpo, preciso e intencional — nada em excesso.'
+    text: 'Design limpo, preciso e intencional — nada em excesso.',
+    Icon: WindIcon
   },
   {
     key: 'beleza',
     title: 'Beleza',
-    text: 'Experiências visuais que elevam a percepção da marca.'
+    text: 'Experiências visuais que elevam a percepção da marca.',
+    Icon: MuseIcon
   },
   {
     key: 'performance',
     title: 'Performance',
-    text: 'Soluções criadas para gerar resultado real e mensurável.'
+    text: 'Soluções criadas para gerar resultado real e mensurável.',
+    Icon: RocketIcon
   }
 ];
 
@@ -56,9 +59,7 @@ const About = () => {
           >
             A SWN nasce da palavra <strong>Swan</strong>, que significa cisne. Assim como o
             animal, a marca carrega precisão, elegância e fluidez em cada solução
-            digital criada para o seu negócio. Pensamos estratégia, desenhamos
-            interfaces e construímos sistemas com a mesma serenidade de quem
-            desliza sobre a água — mas com a engenharia que move tudo por baixo.
+            digital criada para o seu negócio.
           </motion.p>
 
           <div className="about-pillars">
@@ -78,7 +79,7 @@ const About = () => {
                 tabIndex={0}
               >
                 <div className="pillar-icon">
-                  <PillarMark delay={i * 0.4} />
+                  <p.Icon size={32} delay={i * 0.4} />
                 </div>
                 <div>
                   <h3>{p.title}</h3>
@@ -97,7 +98,7 @@ const About = () => {
           transition={{ duration: 1.4, ease: swanEase }}
         >
           <OrbitalRings
-            size={420}
+            size={560}
             pillars={pillars}
             active={active}
             onActiveChange={setActive}

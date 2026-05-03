@@ -5,7 +5,7 @@
   font-weight: 400 700;
   font-display: swap;
   src: url('/fonts/manrope.woff2') format('woff2-variations'),
-       url('/fonts/manrope.woff2') format('woff2');
+    url('/fonts/manrope.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -15,7 +15,7 @@
   font-weight: 400 800;
   font-display: swap;
   src: url('/fonts/sora.woff2') format('woff2-variations'),
-       url('/fonts/sora.woff2') format('woff2');
+    url('/fonts/sora.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -323,22 +323,22 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: clamp(1rem, 2.4vw, 2.5rem);
   width: 100%;
   max-width: var(--container-wide);
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 clamp(1rem, 2vw, 1.75rem);
 }
 
 .header-logo {
-  height: 44px;
+  height: clamp(36px, 2.6vw + 8px, 52px);
   width: auto;
   display: block;
   transition: transform 0.4s var(--ease-swan), height 0.4s var(--ease-swan);
 }
 
 .header.scrolled .header-logo {
-  height: 38px;
+  height: clamp(30px, 2.2vw + 6px, 42px);
 }
 
 .header-logo:hover {
@@ -453,14 +453,17 @@ button {
 
 /* ---------- Hero ---------- */
 .hero {
+  /* Fallback then svh; clamp protects against ultra-tall (4K) and ultra-short viewports */
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: clamp(640px, 100svh, 1000px);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 9rem 1.5rem 6rem;
+  padding: clamp(6rem, 11vh, 10rem) clamp(1.25rem, 3vw, 2rem) clamp(4rem, 8vh, 7rem);
 }
 
 .hero-bg {
@@ -494,7 +497,7 @@ button {
   position: absolute;
   top: 0;
   right: 0;
-  width: min(580px, 50vw);
+  width: clamp(280px, 42vw, 580px);
   height: 150vh;
   display: flex;
   align-items: center;
@@ -506,7 +509,26 @@ button {
   transform-origin: center;
 }
 
-@media (max-width: 1024px) {
+/* 1080p @ 125% (viewport 1280-1439px) — reduce footprint, give text room */
+@media (max-width: 1439px) and (min-width: 1280px) {
+  .hero-swan-layer {
+    width: clamp(320px, 38vw, 460px);
+    opacity: 0.4;
+    transform: scaleX(-1) translateX(-12%);
+  }
+}
+
+/* 1080p @ 150% (viewport 1024-1279px) — keep swan well clear of text */
+@media (max-width: 1279px) and (min-width: 1024px) {
+  .hero-swan-layer {
+    width: clamp(240px, 28vw, 320px);
+    opacity: 0.22;
+    /* Push it further off-canvas so it never crosses the text column */
+    transform: scaleX(-1) translateX(18%);
+  }
+}
+
+@media (max-width: 1023px) {
   .hero-swan-layer {
     width: min(420px, 60vw);
     opacity: 0.22;
@@ -541,7 +563,7 @@ button {
 
 .hero-scroll-hint {
   position: absolute;
-  bottom: 2.25rem;
+  bottom: max(env(safe-area-inset-bottom, 0px), 1.75rem);
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
@@ -551,9 +573,27 @@ button {
   z-index: 3;
   color: var(--text-mute);
   background: transparent;
-  padding: 0.35rem 0.6rem;
+  padding: 0.5rem 0.85rem;
   border-radius: 999px;
   transition: color 0.3s ease;
+}
+
+/* Short viewports (notebooks 13" + Windows 125%/150% chrome) lift the hint */
+@media (max-height: 760px) {
+  .hero-scroll-hint {
+    bottom: max(env(safe-area-inset-bottom, 0px), 2.5rem);
+  }
+}
+
+/* Very short viewports — drop the label, keep only the icon */
+@media (max-height: 640px) {
+  .hero-scroll-hint {
+    bottom: 1.5rem;
+  }
+
+  .hero-scroll-hint-label {
+    display: none;
+  }
 }
 
 .hero-scroll-hint:hover {
@@ -581,10 +621,10 @@ button {
 .hero-title {
   font-family: 'Sora', sans-serif;
   font-weight: 800;
-  font-size: clamp(2.8rem, 8.5vw, 6.4rem);
-  line-height: 1;
-  letter-spacing: -0.038em;
-  margin-bottom: 1.75rem;
+  font-size: clamp(2.6rem, 7vw + 0.5rem, 5.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  margin-bottom: clamp(1.25rem, 2.4vh, 1.75rem);
 }
 
 .hero-title .grad {
@@ -602,10 +642,10 @@ button {
 }
 
 .hero-subtitle {
-  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  font-size: clamp(1rem, 1.2vw + 0.4rem, 1.25rem);
   color: var(--text-soft);
   max-width: 660px;
-  margin: 0 auto 3rem;
+  margin: 0 auto clamp(1.75rem, 4vh, 3rem);
   line-height: 1.65;
 }
 
@@ -632,8 +672,16 @@ button {
   margin: 0 auto;
 }
 
+/* Prevents the title's intrinsic width from forcing the text column to overflow */
+.about-text {
+  min-width: 0;
+}
+
 .about-text .section-title {
   margin-top: 0;
+  /* Smaller upper bound so it never overflows the narrower text column */
+  font-size: clamp(2rem, 3.6vw + 0.4rem, 3.4rem);
+  word-break: break-word;
 }
 
 .about-text p {
@@ -669,14 +717,21 @@ button {
 
 .pillar-icon {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: transparent;
-  border: 1px solid transparent;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(131, 223, 233, 0.06);
+  border: 1px solid var(--cyan-line);
   display: grid;
   place-items: center;
   color: var(--cyan);
+  transition: background 0.4s var(--ease-swan), border-color 0.4s var(--ease-swan);
+}
+
+.pillar:hover .pillar-icon,
+.pillar--active .pillar-icon {
+  background: rgba(131, 223, 233, 0.12);
+  border-color: var(--cyan);
 }
 
 .pillar h3 {
@@ -696,13 +751,17 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 420px;
+  min-height: 560px;
 }
 
 .orbital-wrap {
   position: relative;
   display: grid;
   place-items: center;
+  /* Inline width/height (set by JS) is the desktop target,
+     but never overflow the column on smaller viewports. */
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 .orbital-tooltip {
@@ -1118,9 +1177,17 @@ button {
   color: var(--cyan);
 }
 
-.portfolio-card--wide { grid-column: span 8; }
-.portfolio-card--tall { grid-column: span 4; }
-.portfolio-card--med  { grid-column: span 6; }
+.portfolio-card--wide {
+  grid-column: span 8;
+}
+
+.portfolio-card--tall {
+  grid-column: span 4;
+}
+
+.portfolio-card--med {
+  grid-column: span 6;
+}
 
 .portfolio-mockup-wrap {
   position: relative;
@@ -1825,6 +1892,23 @@ button {
 }
 
 /* ---------- Responsive ---------- */
+
+/* About — narrow desktop range (1080p @ 125% / @ 150%):
+   Tighter grid + smaller orb so the text column has real breathing room. */
+@media (max-width: 1279px) and (min-width: 1025px) {
+  .about-grid {
+    grid-template-columns: 1fr 0.75fr;
+    gap: 3rem;
+  }
+  .about-visual {
+    min-height: 440px;
+  }
+  .orbital-wrap {
+    width: min(100%, 440px) !important;
+    height: auto !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .about-grid {
     grid-template-columns: 1fr;
@@ -1833,7 +1917,12 @@ button {
   }
 
   .about-visual {
-    min-height: 320px;
+    min-height: 380px;
+  }
+
+  .orbital-wrap {
+    width: min(100%, 440px) !important;
+    height: auto !important;
   }
 
   .process-grid {
@@ -1993,6 +2082,62 @@ button {
 
   .float-wa-tooltip {
     display: none !important;
+  }
+}
+
+/* ----------------------------------------------------------------
+   Calibrated breakpoints for Windows DPI scaling
+   1440px+ = 1080p @ 100% (no media query, default styles)
+   1280-1439px = 1080p @ 125% (viewport 1536x864)
+   1024-1279px = 1080p @ 150% (viewport 1280x720)
+---------------------------------------------------------------- */
+
+/* 1080p @ 125% — soften the nav-pill and gap inside the header */
+@media (max-width: 1439px) {
+  .header-nav a {
+    font-size: 0.86rem;
+    padding: 0.5rem 0.85rem;
+  }
+}
+
+/* 1080p @ 150% — tighter still, keep things from colliding */
+@media (max-width: 1279px) {
+  .header-content {
+    gap: 0.85rem;
+  }
+
+  .header-nav a {
+    font-size: 0.84rem;
+    padding: 0.5rem 0.7rem;
+  }
+
+  .header-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.84rem;
+  }
+}
+
+/* Short-and-wide viewports (notebook 13" @ 125%, ~1280x640 logical):
+   compress hero vertical rhythm so the whole composition fits the fold,
+   AND drop the 640px min-height so the Hero is exactly the visible viewport. */
+@media (max-height: 760px) and (min-width: 1024px) {
+  .hero {
+    /* Override the clamp() floor — short viewports must collapse to fit */
+    min-height: 100svh;
+    padding-top: clamp(5rem, 8vh, 6.5rem);
+    padding-bottom: clamp(3rem, 5vh, 4.5rem);
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 5vw + 0.4rem, 4.4rem);
+  }
+
+  .hero-subtitle {
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-buttons {
+    gap: 0.75rem;
   }
 }
 
@@ -2188,9 +2333,17 @@ button {
 }
 
 @keyframes floatWaShimmer {
-  0%   { left: -150%; }
-  60%  { left: 150%; }
-  100% { left: 150%; }
+  0% {
+    left: -150%;
+  }
+
+  60% {
+    left: 150%;
+  }
+
+  100% {
+    left: 150%;
+  }
 }
 
 .float-wa-icon {
