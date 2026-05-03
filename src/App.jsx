@@ -5,19 +5,30 @@ import About from './components/About';
 import LogoParallax from './components/LogoParallax';
 import Services from './components/Services';
 import Process from './components/Process';
+import Portfolio from './components/Portfolio';
+import Testimonials from './components/Testimonials';
 import FinalCTA from './components/FinalCTA';
+import Contact from './components/Contact';
 import Footer from './components/Footer';
+import WaveDivider from './components/svg/WaveDivider';
 
 function App() {
   return (
     <>
       <Header />
-      <Hero />
-      <About />
-      <LogoParallax />
-      <Services />
-      <Process />
-      <FinalCTA />
+      <main>
+        <Hero />
+        <About />
+        <WaveDivider />
+        <LogoParallax />
+        <Services />
+        <WaveDivider flip />
+        <Process />
+        <Portfolio />
+        <Testimonials />
+        <FinalCTA />
+        <Contact />
+      </main>
       <Footer />
     </>
   );

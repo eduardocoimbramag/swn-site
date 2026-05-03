@@ -1,21 +1,66 @@
 import React from 'react';
+import { FiInstagram, FiLinkedin, FiMail, FiYoutube } from 'react-icons/fi';
 
 const Footer = () => {
+  const year = new Date().getFullYear();
+
+  const goTo = (id) => (e) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <footer className="footer">
       <div className="footer-content">
-        <img src="/logo-branca.png" alt="SWN Studio" className="footer-logo" />
-        <div className="footer-links">
-          <ul>
-            <li><a href="#hero">Início</a></li>
-            <li><a href="#about">Sobre</a></li>
-            <li><a href="#services">Serviços</a></li>
-            <li><a href="#process">Processo</a></li>
-            <li><a href="#contact">Contato</a></li>
-          </ul>
+        <div className="footer-top">
+          <div className="footer-brand">
+            <img src="/logo-branca.png" alt="SWN Studio" />
+            <p>
+              Estúdio digital premium especializado em software, web e design.
+              Onde a beleza encontra a performance.
+            </p>
+          </div>
+
+          <div className="footer-col">
+            <h4>Serviços</h4>
+            <ul>
+              <li><a href="#services" onClick={goTo('services')}>Software Development</a></li>
+              <li><a href="#services" onClick={goTo('services')}>Web Development</a></li>
+              <li><a href="#services" onClick={goTo('services')}>Design & Social Media</a></li>
+              <li><a href="#services" onClick={goTo('services')}>Branding</a></li>
+            </ul>
+          </div>
+
+          <div className="footer-col">
+            <h4>Estúdio</h4>
+            <ul>
+              <li><a href="#about" onClick={goTo('about')}>Sobre</a></li>
+              <li><a href="#process" onClick={goTo('process')}>Processo</a></li>
+              <li><a href="#portfolio" onClick={goTo('portfolio')}>Cases</a></li>
+              <li><a href="#testimonials" onClick={goTo('testimonials')}>Depoimentos</a></li>
+            </ul>
+          </div>
+
+          <div className="footer-col">
+            <h4>Contato</h4>
+            <ul>
+              <li><a href="mailto:contato@swnstudio.com">contato@swnstudio.com</a></li>
+              <li><a href="#contact" onClick={goTo('contact')}>Solicitar proposta</a></li>
+            </ul>
+          </div>
         </div>
-        <p className="footer-slogan">Onde a beleza encontra a performance</p>
-        <p className="footer-text">© 2026 SWN Studio. Todos os direitos reservados.</p>
+
+        <div className="footer-bottom">
+          <p className="footer-text">© {year} SWN Studio. Todos os direitos reservados.</p>
+          <p className="footer-slogan">Onde a beleza encontra a performance.</p>
+          <div className="footer-socials">
+            <a className="footer-social" href="https://instagram.com/" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><FiInstagram size={16} /></a>
+            <a className="footer-social" href="https://linkedin.com/" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><FiLinkedin size={16} /></a>
+            <a className="footer-social" href="https://youtube.com/" aria-label="YouTube" target="_blank" rel="noopener noreferrer"><FiYoutube size={16} /></a>
+            <a className="footer-social" href="mailto:contato@swnstudio.com" aria-label="E-mail"><FiMail size={16} /></a>
+          </div>
+        </div>
       </div>
     </footer>
   );

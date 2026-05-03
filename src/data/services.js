@@ -1,36 +1,39 @@
 export const services = [
   {
-    title: "Software Development",
+    key: 'software',
+    title: 'Software Development',
     description:
-      "Sistemas sob medida para automatizar processos, organizar operações e transformar ideias em plataformas digitais funcionais.",
+      'Sistemas sob medida para automatizar processos, organizar operações e transformar ideias em plataformas digitais funcionais.',
     items: [
-      "SaaS",
-      "Automação de Processos",
-      "Mobile Apps",
-      "ERP/CRM Customizados",
-      "Chatbots & Atendimento Auto"
+      'SaaS — Software as a Service',
+      'Automação de Processos (BPA)',
+      'Mobile Apps (iOS e Android)',
+      'ERP / CRM Customizados',
+      'Chatbots & Atendimento Auto'
     ]
   },
   {
-    title: "Web Development",
+    key: 'web',
+    title: 'Web Development',
     description:
-      "Sites, landing pages, e-commerces e plataformas digitais com design premium, estratégia comercial e foco em conversão.",
+      'Sites, landing pages, e-commerces e plataformas digitais com design premium, estratégia comercial e foco em conversão.',
     items: [
-      "Landing Pages de Alta Conversão",
-      "Websites Institucionais Premium",
-      "E-commerces e Lojas Virtuais",
-      "Plataformas Educacionais"
+      'Landing Pages de Alta Conversão',
+      'Websites Institucionais Premium',
+      'E-commerces e Lojas Virtuais',
+      'Plataformas Educacionais (LMS)'
     ]
   },
   {
-    title: "Design & Social Media",
+    key: 'design',
+    title: 'Design & Social Media',
     description:
-      "Construção visual e estratégica para marcas que querem crescer com presença, consistência e sofisticação.",
+      'Construção visual e estratégica para marcas que querem crescer com presença, consistência e sofisticação.',
     items: [
-      "Gestão Estratégica de Redes Sociais",
-      "Filmmaker & Motion Design",
-      "Identidade Visual e Branding",
-      "Consultoria UX/UI"
+      'Gestão Estratégica de Redes Sociais',
+      'Filmmaker & Motion Design',
+      'Identidade Visual e Branding',
+      'Consultoria UX/UI'
     ]
   }
 ];
