@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
 import { SWAN_PATH } from './BrandSwan';
 
 const usePrefersReducedMotion = () => {
@@ -16,17 +16,12 @@ const usePrefersReducedMotion = () => {
 };
 
 /**
- * Cinema Frames — 4 atos sincronizados ao desenho da marca.
+ * Cinema Frames v2 — Barra contínua + Atos cumulativos + Pulse por reveal.
  *
- *  0% — 25%   ATO 1 "Origem"      → pescoço & cabeça do cisne
- *  25% — 55%  ATO 2 "Forma"       → corpo principal
- *  55% — 80%  ATO 3 "Identidade"  → asas se completam, fill começa
- *  80% — 100% ATO 4 "Marca"       → fill total, clímax (pulse + flash)
- *
- * Cada ato carrega:
- *  - número (01/04, 02/04, ...)
- *  - palavra-tema grande à esquerda (cross-fade)
- *  - micro-legenda explicando o ato
+ * Diferente da v1, os 4 atos não fazem cross-fade no mesmo lugar:
+ * eles são empilhados e revelados conforme a barra de progresso (que percorre
+ * a seção inteira) atravessa cada marcador. Cada reveal dispara um pulse no
+ * cisne. Atos revelados permanecem visíveis (estado cumulativo).
  */
 
 const ACTS = [
@@ -52,6 +47,9 @@ const ACTS = [
   }
 ];
 
+const REVEAL_POINTS = [0.05, 0.32, 0.60, 0.88];
+const PULSE_DURATION_MS = 1600;
+
 const SwanScrollDraw = () => {
   const ref = useRef(null);
   const reducedMotion = usePrefersReducedMotion();
@@ -63,37 +61,45 @@ const SwanScrollDraw = () => {
 
   const smooth = useSpring(scrollYProgress, { stiffness: 60, damping: 28, mass: 0.8 });
 
-  /* --- Curvas de animação --- */
+  /* --- Curvas mantidas da v1 --- */
   const strokeLen     = useTransform(smooth, [0.06, 0.78], [0, 1]);
   const fillOpacity   = useTransform(smooth, [0.62, 0.86], [0, 1]);
   const haloOpacity   = useTransform(smooth, [0, 0.5, 0.85, 1], [0.2, 0.7, 1, 0.85]);
   const haloScale     = useTransform(smooth, [0, 0.5, 1], [0.95, 1.05, 1.15]);
-
-  /* Anel de clímax — expande quando o fill se completa */
-  const ringScale     = useTransform(smooth, [0.86, 0.96], [0, 2.4]);
-  const ringOpacity   = useTransform(smooth, [0.86, 0.90, 0.96], [0, 0.85, 0]);
-
-  /* Flash discreto no momento do clímax (88-92%) */
   const flashOpacity  = useTransform(smooth, [0.86, 0.89, 0.92], [0, 0.18, 0]);
 
-  /* Atos — cada um tem janela de fade-in/hold/fade-out */
-  const act1Op = useTransform(smooth, [0.00, 0.05, 0.22, 0.30], [0, 1, 1, 0]);
-  const act2Op = useTransform(smooth, [0.25, 0.32, 0.50, 0.58], [0, 1, 1, 0]);
-  const act3Op = useTransform(smooth, [0.53, 0.60, 0.74, 0.82], [0, 1, 1, 0]);
-  const act4Op = useTransform(smooth, [0.78, 0.85, 1.00, 1.00], [0, 1, 1, 1]);
-
-  /* Pequeno deslocamento Y por ato (entrada de baixo pra cima) */
-  const act1Y = useTransform(smooth, [0.00, 0.05], [24, 0]);
-  const act2Y = useTransform(smooth, [0.25, 0.32], [24, 0]);
-  const act3Y = useTransform(smooth, [0.53, 0.60], [24, 0]);
-  const act4Y = useTransform(smooth, [0.78, 0.85], [24, 0]);
-
-  /* Barra de progresso vertical (indicador discreto) */
+  /* Barra de progresso (preenche a seção inteira) */
   const progressScaleY = useTransform(smooth, [0, 1], [0, 1]);
+
+  /* Estado cumulativo dos atos revelados */
+  const [revealed, setRevealed] = useState([false, false, false, false]);
+  const prevRevealedCount = useRef(0);
+  const [pulses, setPulses] = useState([]);
+
+  useMotionValueEvent(smooth, 'change', (value) => {
+    setRevealed((prev) => {
+      const next = REVEAL_POINTS.map((p, i) => prev[i] || value >= p);
+      return next.some((v, i) => v !== prev[i]) ? next : prev;
+    });
+  });
+
+  /* Dispara um novo pulse cada vez que a contagem de revealed cresce */
+  useEffect(() => {
+    const count = revealed.filter(Boolean).length;
+    if (count > prevRevealedCount.current) {
+      const id = Date.now() + Math.random();
+      setPulses((p) => [...p, id]);
+      const timer = setTimeout(() => {
+        setPulses((p) => p.filter((x) => x !== id));
+      }, PULSE_DURATION_MS);
+      prevRevealedCount.current = count;
+      return () => clearTimeout(timer);
+    }
+    prevRevealedCount.current = count;
+  }, [revealed]);
 
   /* --- Reduced motion: estado final estático --- */
   if (reducedMotion) {
-    const finalAct = ACTS[ACTS.length - 1];
     return (
       <section
         ref={ref}
@@ -102,10 +108,15 @@ const SwanScrollDraw = () => {
       >
         <div className="swan-scroll-sticky swan-scroll-sticky--reduced">
           <div className="swan-scroll-inner">
-            <div className="swan-scroll-act swan-scroll-act--static">
-              <span className="swan-scroll-act-num">{finalAct.num} / 04</span>
-              <h2 className="swan-scroll-act-word">{finalAct.word}</h2>
-              <p className="swan-scroll-act-caption">{finalAct.caption}</p>
+            <div className="swan-scroll-progress-rail" aria-hidden="true" />
+
+            <div className="swan-scroll-acts">
+              {ACTS.map((act) => (
+                <div key={act.num} className="swan-scroll-act is-revealed">
+                  <h3 className="swan-scroll-act-word">{act.word}</h3>
+                  <p className="swan-scroll-act-caption">{act.caption}</p>
+                </div>
+              ))}
             </div>
 
             <div className="swan-scroll-stage">
@@ -156,49 +167,53 @@ const SwanScrollDraw = () => {
         />
 
         <div className="swan-scroll-inner">
-          {/* Coluna esquerda: ATOS (palavras grandes em cross-fade) */}
-          <div className="swan-scroll-acts" aria-hidden="true">
-            {/* Indicador de progresso vertical */}
-            <div className="swan-scroll-progress">
-              <motion.span
-                className="swan-scroll-progress-bar"
-                style={{ scaleY: progressScaleY }}
+          {/* Coluna 1: trilho de progresso full-height */}
+          <div className="swan-scroll-progress-rail" aria-hidden="true">
+            <motion.span
+              className="swan-scroll-progress-fill"
+              style={{ scaleY: progressScaleY }}
+            />
+            {REVEAL_POINTS.map((p, i) => (
+              <span
+                key={i}
+                className={`swan-scroll-progress-marker ${revealed[i] ? 'is-reached' : ''}`}
+                style={{ top: `${p * 100}%` }}
               />
-            </div>
-
-            <div className="swan-scroll-acts-stack">
-              {[
-                { ...ACTS[0], op: act1Op, y: act1Y },
-                { ...ACTS[1], op: act2Op, y: act2Y },
-                { ...ACTS[2], op: act3Op, y: act3Y },
-                { ...ACTS[3], op: act4Op, y: act4Y }
-              ].map((act) => (
-                <motion.div
-                  key={act.num}
-                  className="swan-scroll-act"
-                  style={{ opacity: act.op, y: act.y }}
-                >
-                  <span className="swan-scroll-act-num">{act.num} / 04</span>
-                  <h2 className="swan-scroll-act-word">{act.word}</h2>
-                  <p className="swan-scroll-act-caption">{act.caption}</p>
-                </motion.div>
-              ))}
-            </div>
+            ))}
           </div>
 
-          {/* Coluna direita: o palco do cisne */}
+          {/* Coluna 2: ATOS empilhados, revelados cumulativamente */}
+          <div className="swan-scroll-acts">
+            {ACTS.map((act, i) => (
+              <div
+                key={act.num}
+                className={`swan-scroll-act ${revealed[i] ? 'is-revealed' : ''}`}
+                aria-current={revealed[i] ? 'step' : undefined}
+              >
+                <h3 className="swan-scroll-act-word">{act.word}</h3>
+                <p className="swan-scroll-act-caption">{act.caption}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Coluna 3: o palco do cisne */}
           <div className="swan-scroll-stage">
             <motion.div
               className="swan-scroll-halo"
               style={{ opacity: haloOpacity, scale: haloScale }}
             />
 
-            {/* Anel de clímax */}
-            <motion.div
-              className="swan-scroll-pulse-ring"
-              style={{ scale: ringScale, opacity: ringOpacity }}
-              aria-hidden="true"
-            />
+            {/* Pulses sobrepostos — um a cada reveal */}
+            {pulses.map((id) => (
+              <motion.div
+                key={id}
+                className="swan-scroll-pulse-ring"
+                initial={{ scale: 0, opacity: 0.9 }}
+                animate={{ scale: 2.4, opacity: 0 }}
+                transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+                aria-hidden="true"
+              />
+            ))}
 
             <svg
               viewBox="0 0 1024 1024"
