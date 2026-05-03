@@ -805,72 +805,175 @@ button {
   transform: translateX(4px);
 }
 
-/* ---------- Swan scroll draw section ---------- */
+/* ---------- Swan scroll draw — Cinema Frames (4 atos) ---------- */
 .swan-scroll {
-  height: 260vh;
+  height: 220vh;
   position: relative;
-  background: linear-gradient(180deg, var(--bg) 0%, #07090A 50%, var(--bg) 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 50%, #0A1014 0%, var(--bg) 70%),
+    var(--bg);
 }
 
 .swan-scroll-sticky {
   position: sticky;
   top: 0;
   height: 100vh;
+  width: 100%;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 2rem;
-  gap: 1rem;
 }
 
-.swan-scroll-title {
-  max-width: 720px;
+/* Flash overlay — sits inside the sticky frame so it scrolls with the section */
+.swan-scroll-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 65% 50%, rgba(131, 223, 233, 0.22), transparent 60%);
+  pointer-events: none;
+  z-index: 4;
+  mix-blend-mode: screen;
 }
 
-.swan-scroll-eyebrow {
-  display: inline-block;
+/* Inner row that holds the 2 columns, centered in the viewport */
+.swan-scroll-inner {
+  position: relative;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 clamp(2rem, 5vw, 5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 4vw, 4rem);
+  z-index: 2;
+}
+
+/* ----- Acts column (left) ----- */
+.swan-scroll-acts {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2px minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: stretch;
+  /* Minimum height keeps the column from collapsing while acts fade in/out */
+  min-height: 280px;
+}
+
+.swan-scroll-progress {
+  position: relative;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.swan-scroll-progress-bar {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--cyan), rgba(131, 223, 233, 0.3));
+  transform-origin: top;
+  box-shadow: 0 0 18px var(--cyan-glow);
+}
+
+.swan-scroll-acts-stack {
+  position: relative;
+  display: grid;
+  /* All acts share the same cell — only opacity reveals the active one */
+  grid-template-columns: 1fr;
+  align-content: center;
+  min-height: 280px;
+}
+
+.swan-scroll-act {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  text-align: left;
+  /* Important: prevents long words from forcing the column to expand */
+  min-width: 0;
+}
+
+.swan-scroll-act-num {
   font-family: 'Sora', sans-serif;
   font-size: 0.78rem;
-  letter-spacing: 0.22em;
-  color: var(--cyan);
+  font-weight: 500;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.swan-scroll-title h2 {
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-.swan-scroll-title h2 .cyan {
   color: var(--cyan);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
-.swan-scroll-title p {
-  margin-top: 0.85rem;
+.swan-scroll-act-num::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--cyan);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.swan-scroll-act-word {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 5.5vw, 5.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  margin: 0;
+  background: linear-gradient(180deg, #ffffff 0%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.swan-scroll-act-caption {
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(0.95rem, 1.05vw, 1.05rem);
+  font-weight: 400;
+  line-height: 1.55;
   color: var(--text-soft);
-  font-size: 1.05rem;
+  letter-spacing: -0.005em;
+  max-width: 36ch;
+  margin: 0;
 }
 
+/* ----- Stage (right column) ----- */
 .swan-scroll-stage {
   position: relative;
-  margin-top: 2rem;
-  width: min(46vh, 420px);
-  height: min(46vh, 420px);
+  width: 100%;
+  /* Keeps the stage square inside the column */
+  aspect-ratio: 1 / 1;
+  max-width: min(60vh, 600px);
+  margin: 0 auto;
   display: grid;
   place-items: center;
 }
 
 .swan-scroll-halo {
   position: absolute;
-  inset: -18%;
+  inset: -15%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(131, 223, 233, 0.28), transparent 60%);
-  filter: blur(28px);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(131, 223, 233, 0.45), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(131, 223, 233, 0.18), transparent 75%);
+  filter: blur(32px);
   pointer-events: none;
+  z-index: 0;
+}
+
+.swan-scroll-pulse-ring {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  border: 1.5px solid var(--cyan);
+  pointer-events: none;
+  box-shadow: 0 0 60px var(--cyan-glow);
+  z-index: 2;
 }
 
 .swan-scroll-svg {
@@ -879,36 +982,123 @@ button {
   height: 100%;
   display: block;
   overflow: visible;
+  z-index: 1;
 }
 
-.swan-scroll-narrative {
-  margin-top: 2.25rem;
-  max-width: 540px;
-  font-family: 'Sora', sans-serif;
-  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
-  line-height: 1.55;
-  color: var(--text-soft);
-  text-align: center;
-  letter-spacing: -0.005em;
-}
-
-.swan-scroll-narrative .cyan {
-  color: var(--cyan);
-}
-
-.swan-scroll-narrative--static {
-  margin-top: 2rem;
-}
-
+/* ----- Reduced motion ----- */
 .swan-scroll--reduced {
   height: auto;
   padding: 6rem 1.5rem;
 }
 
-.swan-scroll--reduced .swan-scroll-sticky {
+.swan-scroll-sticky--reduced {
   position: relative;
   height: auto;
   top: auto;
+  display: block;
+}
+
+.swan-scroll--reduced .swan-scroll-inner {
+  padding: 0;
+}
+
+.swan-scroll-act--static {
+  text-align: center;
+  align-items: center;
+}
+
+/* ----- Responsive ----- */
+/* Tablet — keep the scroll-locked effect but lighten paddings & fonts */
+@media (max-width: 1280px) and (min-width: 1025px) {
+  .swan-scroll {
+    height: 200vh;
+  }
+  .swan-scroll-inner {
+    padding: 0 2rem;
+    gap: 2.5rem;
+  }
+  .swan-scroll-act-word {
+    font-size: clamp(2.4rem, 5vw, 4.6rem);
+  }
+  .swan-scroll-stage {
+    max-width: min(55vh, 480px);
+  }
+}
+
+/* Mobile — drop the sticky scroll-driven effect, render as a static composition */
+@media (max-width: 1024px) {
+  .swan-scroll {
+    height: auto;
+  }
+
+  .swan-scroll-sticky {
+    position: relative;
+    height: auto;
+    top: auto;
+    overflow: visible;
+    padding: clamp(4rem, 8vh, 6rem) 0;
+  }
+
+  .swan-scroll-inner {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding: 0 1.5rem;
+  }
+
+  .swan-scroll-acts {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    order: 2;
+  }
+
+  .swan-scroll-progress {
+    display: none;
+  }
+
+  .swan-scroll-acts-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-height: 0;
+  }
+
+  .swan-scroll-act {
+    grid-row: auto;
+    grid-column: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    align-items: center;
+    text-align: center;
+  }
+
+  .swan-scroll-act-word {
+    font-size: clamp(2.4rem, 9vw, 3.6rem);
+  }
+
+  .swan-scroll-act-caption {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .swan-scroll-stage {
+    width: min(80vw, 420px);
+    max-width: none;
+    order: 1;
+    margin: 0 auto;
+  }
+
+  /* Hide pulse ring & flash on mobile (no scroll-driven climax) */
+  .swan-scroll-pulse-ring,
+  .swan-scroll-flash {
+    display: none;
+  }
+
+  /* Mobile: force the swan to render fully drawn + filled, no scroll dependency */
+  .swan-scroll-svg path {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
 }
 
 /* ---------- Services ---------- */
