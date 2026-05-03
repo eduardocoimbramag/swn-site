@@ -24,18 +24,24 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    const sections = NAV.map(n => document.getElementById(n.id)).filter(Boolean);
-    if (!sections.length) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActive(entry.target.id);
-        });
-      },
-      { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => observer.disconnect();
+    let observer;
+    const raf = requestAnimationFrame(() => {
+      const sections = NAV.map((n) => document.getElementById(n.id)).filter(Boolean);
+      if (!sections.length) return;
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) setActive(entry.target.id);
+          });
+        },
+        { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
+      );
+      sections.forEach((s) => observer.observe(s));
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      observer?.disconnect();
+    };
   }, []);
 
   const goTo = (id) => {

@@ -5,14 +5,8 @@ const WaveDivider = ({ flip = false, opacity = 0.18, height = 120 }) => {
   return (
     <div
       aria-hidden="true"
-      style={{
-        width: '100%',
-        height,
-        overflow: 'hidden',
-        position: 'relative',
-        transform: flip ? 'scaleY(-1)' : 'none',
-        pointerEvents: 'none'
-      }}
+      className={`wave-divider ${flip ? 'wave-divider--flip' : ''}`}
+      style={{ height }}
     >
       <svg
         viewBox="0 0 1440 120"
@@ -29,6 +23,7 @@ const WaveDivider = ({ flip = false, opacity = 0.18, height = 120 }) => {
           </linearGradient>
         </defs>
         <motion.path
+          className="wave-divider-path wave-divider-path--main"
           d="M0 60 C 240 20, 480 100, 720 60 C 960 20, 1200 100, 1440 60"
           fill="none"
           stroke="url(#waveStroke)"
@@ -45,6 +40,7 @@ const WaveDivider = ({ flip = false, opacity = 0.18, height = 120 }) => {
           transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.path
+          className="wave-divider-path wave-divider-path--echo"
           d="M0 80 C 240 40, 480 110, 720 80 C 960 50, 1200 110, 1440 80"
           fill="none"
           stroke="#83DFE9"

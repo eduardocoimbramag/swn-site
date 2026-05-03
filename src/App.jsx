@@ -10,6 +10,7 @@ import Testimonials from './components/Testimonials';
 import FinalCTA from './components/FinalCTA';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 import WaveDivider from './components/svg/WaveDivider';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Contact />
       </main>
       <Footer />
+      <FloatingWhatsApp />
     </>
   );
 }

@@ -1,9 +1,11 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
+import { FiArrowRight } from 'react-icons/fi';
+import { prefillContactInterest } from '../lib/contactBridge';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
-const GlowCard = ({ title, description, items, icon, index = 0 }) => {
+const GlowCard = ({ title, description, items, icon, index = 0, ctaInterest }) => {
   const ref = useRef(null);
 
   const handleMouseMove = (e) => {
@@ -12,6 +14,12 @@ const GlowCard = ({ title, description, items, icon, index = 0 }) => {
     const rect = el.getBoundingClientRect();
     el.style.setProperty('--mx', `${e.clientX - rect.left}px`);
     el.style.setProperty('--my', `${e.clientY - rect.top}px`);
+  };
+
+  const handleCta = () => {
+    if (ctaInterest) prefillContactInterest(ctaInterest);
+    const el = document.getElementById('contact');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -35,6 +43,11 @@ const GlowCard = ({ title, description, items, icon, index = 0 }) => {
           </li>
         ))}
       </ul>
+
+      <button type="button" className="glow-card-cta" onClick={handleCta}>
+        Falar sobre {title.split(' ')[0]}
+        <FiArrowRight className="btn-arrow" size={14} aria-hidden="true" />
+      </button>
     </motion.div>
   );
 };

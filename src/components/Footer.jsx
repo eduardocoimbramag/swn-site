@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiInstagram, FiLinkedin, FiMail, FiYoutube } from 'react-icons/fi';
+import { EMAIL, INSTAGRAM, LINKEDIN, YOUTUBE } from '../lib/contact';
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -15,7 +16,7 @@ const Footer = () => {
       <div className="footer-content">
         <div className="footer-top">
           <div className="footer-brand">
-            <img src="/logo-branca.png" alt="SWN Studio" />
+            <img src="/logo-branca.png" alt="SWN Studio" width="120" height="28" loading="lazy" decoding="async" />
             <p>
               Estúdio digital premium especializado em software, web e design.
               Onde a beleza encontra a performance.
@@ -45,7 +46,7 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Contato</h4>
             <ul>
-              <li><a href="mailto:contato@swnstudio.com">contato@swnstudio.com</a></li>
+              <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
               <li><a href="#contact" onClick={goTo('contact')}>Solicitar proposta</a></li>
             </ul>
           </div>
@@ -55,10 +56,10 @@ const Footer = () => {
           <p className="footer-text">© {year} SWN Studio. Todos os direitos reservados.</p>
           <p className="footer-slogan">Onde a beleza encontra a performance.</p>
           <div className="footer-socials">
-            <a className="footer-social" href="https://instagram.com/" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><FiInstagram size={16} /></a>
-            <a className="footer-social" href="https://linkedin.com/" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><FiLinkedin size={16} /></a>
-            <a className="footer-social" href="https://youtube.com/" aria-label="YouTube" target="_blank" rel="noopener noreferrer"><FiYoutube size={16} /></a>
-            <a className="footer-social" href="mailto:contato@swnstudio.com" aria-label="E-mail"><FiMail size={16} /></a>
+            <a className="footer-social" href={INSTAGRAM} aria-label="Instagram" target="_blank" rel="noopener noreferrer"><FiInstagram size={16} /></a>
+            <a className="footer-social" href={LINKEDIN} aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><FiLinkedin size={16} /></a>
+            <a className="footer-social" href={YOUTUBE} aria-label="YouTube" target="_blank" rel="noopener noreferrer"><FiYoutube size={16} /></a>
+            <a className="footer-social" href={`mailto:${EMAIL}`} aria-label="E-mail"><FiMail size={16} /></a>
           </div>
         </div>
       </div>

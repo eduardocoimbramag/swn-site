@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(curl -s -A \"Mozilla/5.0 \\(X11; Linux x86_64\\) AppleWebKit/537.36\" \"https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap\" -o /tmp/gfonts.css)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -A \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/119.0.0.0 Safari/537.36\" \"https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap\" -o /tmp/gfonts.css)",
+      "Bash(awk '/font-family:/ {family=$0} /font-weight:/ {weight=$0} /src: url/ {url=$0} /U\\\\+0000-00FF/ {print family \"|\" weight \"|\" url}' /tmp/gfonts.css)",
+      "Bash(curl -sSLO \"https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggexSg.woff2\" -o manrope.woff2)",
+      "Bash(mv \"xn7gYHE41ni1AdIRggexSg.woff2\" \"manrope.woff2\")",
+      "Bash(curl -sSL \"https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggexSg.woff2\" -o manrope.woff2)",
+      "Bash(curl -sSL \"https://fonts.gstatic.com/s/sora/v17/xMQ9uFFYT72X5wkB_18qmnndmSdSnh2BAfO5mnuyOo1lfiQwV6-x.woff2\" -o sora.woff2)"
     ]
   }
 }

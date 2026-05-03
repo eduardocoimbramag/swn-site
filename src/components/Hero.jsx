@@ -46,70 +46,74 @@ const Hero = () => {
           <Feathers />
         </div>
 
-      <motion.div
-        className="hero-content"
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div className="hero-swan-mobile" variants={fadeUp(0.05)} aria-hidden="true">
-          <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="hero-mobile-grad" x1="0.1" y1="0" x2="0.9" y2="1">
-                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-                <stop offset="55%" stopColor="#83DFE9" />
-                <stop offset="100%" stopColor="#83DFE9" stopOpacity="0.75" />
-              </linearGradient>
-            </defs>
-            <path d={SWAN_PATH} fill="url(#hero-mobile-grad)" fillRule="evenodd" />
-          </svg>
-        </motion.div>
-
-        <motion.h1 className="hero-title" variants={fadeUp(0.15)}>
-          <span className="grad">Onde a beleza</span>
-          <br />
-          encontra a <span className="italic">performance</span>.
-        </motion.h1>
-
-        <motion.p className="hero-subtitle" variants={fadeUp(0.35)}>
-          Criamos softwares, sites e experiências digitais para empresas que querem
-          sair do improviso e crescer com sofisticação — com a leveza de um cisne
-          e a precisão de um relógio.
-        </motion.p>
-
-        <motion.div className="hero-buttons" variants={fadeUp(0.55)}>
-          <button
-            className="btn-primary"
-            onClick={() => handleScroll('#contact')}
-          >
-            Solicitar proposta <FiArrowRight className="btn-arrow" size={16} />
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => handleScroll('#services')}
-          >
-            <FiPlayCircle size={16} /> Conhecer serviços
-          </button>
-        </motion.div>
-      </motion.div>
-
-      <motion.button
-        className="hero-scroll-hint"
-        onClick={() => handleScroll('#about')}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.6, ease: swanEase }}
-        aria-label="Role para descobrir mais"
-      >
-        <span className="hero-scroll-hint-label">Role para descobrir</span>
-        <motion.span
-          className="hero-scroll-hint-icon"
-          animate={{ y: [0, 6, 0], opacity: [0.6, 1, 0.6] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-          aria-hidden="true"
+        <motion.div
+          className="hero-content"
+          initial="hidden"
+          animate="visible"
         >
-          <FiArrowDown size={14} />
-        </motion.span>
-      </motion.button>
+          <motion.div
+            className="hero-swan-mobile"
+            variants={fadeUp(0.05)}
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="hero-mobile-grad" x1="0.1" y1="0" x2="0.9" y2="1">
+                  <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+                  <stop offset="55%" stopColor="#83DFE9" />
+                  <stop offset="100%" stopColor="#83DFE9" stopOpacity="0.75" />
+                </linearGradient>
+              </defs>
+              <path d={SWAN_PATH} fill="url(#hero-mobile-grad)" fillRule="evenodd" />
+            </svg>
+          </motion.div>
+
+          <motion.h1 className="hero-title" variants={fadeUp(0.15)}>
+            <span className="grad">Onde a beleza</span>
+            <br />
+            encontra a <span className="italic">performance</span>.
+          </motion.h1>
+
+          <motion.p className="hero-subtitle" variants={fadeUp(0.35)}>
+            Criamos softwares, sites e experiências digitais para empresas que querem
+            sair do improviso e crescer com sofisticação — com a leveza de um cisne
+            e a precisão de um relógio.
+          </motion.p>
+
+          <motion.div className="hero-buttons" variants={fadeUp(0.55)}>
+            <button
+              className="btn-primary"
+              onClick={() => handleScroll('#contact')}
+            >
+              Solicitar proposta <FiArrowRight className="btn-arrow" size={16} />
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => handleScroll('#services')}
+            >
+              <FiPlayCircle size={16} /> Conhecer serviços
+            </button>
+          </motion.div>
+        </motion.div>
+
+        <motion.button
+          className="hero-scroll-hint"
+          onClick={() => handleScroll('#about')}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.6, ease: swanEase }}
+          aria-label="Role para descobrir mais"
+        >
+          <span className="hero-scroll-hint-label">Role para descobrir</span>
+          <motion.span
+            className="hero-scroll-hint-icon"
+            animate={{ y: [0, 6, 0], opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+            aria-hidden="true"
+          >
+            <FiArrowDown size={14} />
+          </motion.span>
+        </motion.button>
       </section>
     </>
   );

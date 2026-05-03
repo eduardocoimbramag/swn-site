@@ -1,4 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap');
+/* Self-hosted fonts (variable font files cover all weights) */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/manrope.woff2') format('woff2-variations'),
+       url('/fonts/manrope.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/sora.woff2') format('woff2-variations'),
+       url('/fonts/sora.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
   --cyan: #83DFE9;
@@ -15,7 +34,7 @@
   --border-strong: rgba(255, 255, 255, 0.14);
   --text: #ffffff;
   --text-soft: rgba(255, 255, 255, 0.72);
-  --text-mute: rgba(255, 255, 255, 0.48);
+  --text-mute: rgba(255, 255, 255, 0.55);
 
   --container: 1200px;
   --container-wide: 1320px;
@@ -1953,4 +1972,258 @@ button {
     width: 100%;
     max-width: 320px;
   }
+
+  /* 17.1 — wave dividers more visible on mobile */
+  .wave-divider-path--main {
+    stroke-width: 1.6 !important;
+    stroke-opacity: 1 !important;
+  }
+
+  .wave-divider-path--echo {
+    stroke-width: 1.2 !important;
+    stroke-opacity: 0.7 !important;
+  }
+
+  .float-wa {
+    right: 1rem !important;
+    bottom: 1rem !important;
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .float-wa-tooltip {
+    display: none !important;
+  }
+}
+
+/* ---------- Wave divider container ---------- */
+.wave-divider {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  pointer-events: none;
+}
+
+.wave-divider--flip {
+  transform: scaleY(-1);
+}
+
+/* ---------- Service card CTA (item 7.3) ---------- */
+.glow-card-cta {
+  margin-top: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Sora', sans-serif;
+  font-weight: 500;
+  font-size: 0.88rem;
+  color: var(--cyan);
+  background: transparent;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--cyan-line);
+  align-self: flex-start;
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.4s var(--ease-swan);
+  letter-spacing: 0.01em;
+}
+
+.glow-card-cta:hover {
+  background: rgba(131, 223, 233, 0.08);
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+.glow-card-cta .btn-arrow {
+  transition: transform 0.4s var(--ease-swan);
+}
+
+.glow-card-cta:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+/* ---------- Contact form validation (item 10.1) ---------- */
+.contact-form .field {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form .field input,
+.contact-form .field textarea,
+.contact-form .field select {
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-form .field.invalid input,
+.contact-form .field.invalid textarea {
+  border-color: var(--cyan);
+  background: rgba(131, 223, 233, 0.06);
+  box-shadow: 0 0 0 3px rgba(131, 223, 233, 0.12);
+}
+
+.field-required {
+  color: var(--cyan);
+  margin-left: 0.15rem;
+  font-weight: 600;
+}
+
+.field-optional {
+  color: var(--text-mute);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  margin-left: 0.4rem;
+  text-transform: none;
+}
+
+.field-error {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem;
+  color: var(--cyan);
+  letter-spacing: 0.01em;
+}
+
+.field-error::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  margin-right: 0.5rem;
+  box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.form-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: var(--r-md);
+  background: rgba(131, 223, 233, 0.08);
+  border: 1px solid var(--cyan-line);
+  color: var(--cyan);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.85rem;
+}
+
+/* Contact channel external indicator */
+.contact-channel {
+  position: relative;
+}
+
+.contact-channel-ext {
+  margin-left: auto;
+  color: var(--text-mute);
+  transition: color 0.3s ease, transform 0.4s var(--ease-swan);
+}
+
+.contact-channel:hover .contact-channel-ext {
+  color: var(--cyan);
+  transform: translate(2px, -2px);
+}
+
+/* ---------- Floating WhatsApp (item 16.1) ---------- */
+.float-wa {
+  --wa-cyan: #83DFE9;
+  position: fixed;
+  right: 1.75rem;
+  bottom: 1.75rem;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  color: #04201f;
+  background: linear-gradient(140deg, #B7ECF1 0%, var(--wa-cyan) 55%, #4FB6BF 100%);
+  box-shadow:
+    0 14px 40px -12px rgba(131, 223, 233, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  isolation: isolate;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.float-wa-pulse,
+.float-wa-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.float-wa-pulse {
+  border: 1px solid rgba(131, 223, 233, 0.6);
+  background: rgba(131, 223, 233, 0.18);
+}
+
+.float-wa-halo {
+  background: radial-gradient(circle, rgba(131, 223, 233, 0.55), transparent 70%);
+  filter: blur(14px);
+  inset: -10px;
+}
+
+.float-wa-shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.float-wa-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: skewX(-20deg);
+  animation: floatWaShimmer 4.5s ease-in-out infinite;
+}
+
+@keyframes floatWaShimmer {
+  0%   { left: -150%; }
+  60%  { left: 150%; }
+  100% { left: 150%; }
+}
+
+.float-wa-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.3));
+}
+
+.float-wa-tooltip {
+  position: absolute;
+  right: calc(100% + 0.7rem);
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(10, 13, 15, 0.95);
+  color: var(--white);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.4s var(--ease-swan);
+}
+
+.float-wa:hover .float-wa-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(-4px);
 }
