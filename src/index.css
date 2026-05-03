@@ -1026,17 +1026,21 @@ button {
   .swan-scroll {
     height: 200vh;
   }
+
   .swan-scroll-inner {
     padding: clamp(3rem, 6vh, 5rem) 2rem;
     gap: 2rem;
     grid-template-columns: 18px minmax(0, 1fr) minmax(0, 1fr);
   }
+
   .swan-scroll-progress-rail {
     width: 18px;
   }
+
   .swan-scroll-act-word {
     font-size: clamp(1.8rem, 3.2vw, 2.8rem);
   }
+
   .swan-scroll-stage {
     max-width: min(55vh, 480px);
   }
@@ -1133,7 +1137,18 @@ button {
   border: 1px solid var(--border);
   overflow: hidden;
   isolation: isolate;
-  transition: transform 0.5s var(--ease-swan), border-color 0.4s ease;
+  /* Card becomes a flex column so the CTA can stick to the bottom */
+  display: flex;
+  flex-direction: column;
+  /* 3D perspective for tilt — mouse-controlled via --rx/--ry */
+  perspective: 1000px;
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition:
+    transform 0.6s var(--ease-swan),
+    border-color 0.4s ease,
+    box-shadow 0.5s var(--ease-swan);
+  z-index: 1;
 }
 
 .glow-card::before {
@@ -1170,7 +1185,12 @@ button {
 }
 
 .glow-card:hover {
-  transform: translateY(-6px);
+  /* Combine tilt vars with the lift translate */
+  transform:
+    perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px);
+  box-shadow:
+    0 28px 70px -28px rgba(131, 223, 233, 0.40),
+    0 0 0 1px rgba(131, 223, 233, 0.15);
 }
 
 .glow-card:hover::before {
@@ -1200,6 +1220,21 @@ button {
   display: grid;
   place-items: center;
   margin-bottom: 1.5rem;
+  transition: background 0.4s var(--ease-swan), border-color 0.4s ease;
+}
+
+.glow-card:hover .glow-card-icon {
+  background: rgba(131, 223, 233, 0.14);
+  border-color: var(--cyan);
+}
+
+.glow-card-icon-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
 }
 
 .glow-card h3 {
@@ -1222,6 +1257,9 @@ button {
   gap: 0.45rem;
   border-top: 1px dashed var(--border);
   padding-top: 1.25rem;
+  /* Allow the items to absorb extra space, pushing the CTA to the bottom */
+  flex: 1;
+  align-content: start;
 }
 
 .glow-card-items li {
@@ -2100,9 +2138,11 @@ button {
     grid-template-columns: 1fr 0.75fr;
     gap: 3rem;
   }
+
   .about-visual {
     min-height: 440px;
   }
+
   .orbital-wrap {
     width: min(100%, 440px) !important;
     height: auto !important;
@@ -2355,7 +2395,10 @@ button {
 
 /* ---------- Service card CTA (item 7.3) ---------- */
 .glow-card-cta {
+  /* Sticks to the bottom of the card and centers horizontally */
   margin-top: 1.5rem;
+  align-self: center;
+
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -2367,7 +2410,6 @@ button {
   padding: 0.55rem 0.9rem;
   border-radius: 999px;
   border: 1px solid var(--cyan-line);
-  align-self: flex-start;
   transition: background 0.3s ease, border-color 0.3s ease, transform 0.4s var(--ease-swan);
   letter-spacing: 0.01em;
 }
@@ -2499,7 +2541,7 @@ button {
   z-index: 0;
 }
 
-.form-wizard-shell > * {
+.form-wizard-shell>* {
   position: relative;
   z-index: 1;
 }
@@ -2611,11 +2653,9 @@ button {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(
-    240px circle at 0% 50%,
-    rgba(131, 223, 233, 0.10),
-    transparent 60%
-  );
+  background: radial-gradient(240px circle at 0% 50%,
+      rgba(131, 223, 233, 0.10),
+      transparent 60%);
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -2755,16 +2795,20 @@ button {
     padding: 0.85rem 1rem;
     gap: 0.85rem;
   }
+
   .form-wizard-option-icon {
     width: 38px;
     height: 38px;
   }
+
   .form-wizard-option-body strong {
     font-size: 0.94rem;
   }
+
   .form-wizard-option-body span {
     font-size: 0.82rem;
   }
+
   .form-wizard-channels {
     flex-direction: column;
     align-items: flex-start;

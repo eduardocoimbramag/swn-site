@@ -3,12 +3,11 @@ export const services = [
     key: 'software',
     title: 'Software Development',
     description:
-      'Sistemas sob medida para automatizar processos, organizar operações e transformar ideias em plataformas digitais funcionais.',
+      'Sistemas sob medida para automatizar processos, organizar e transformar ideias em plataformas digitais funcionais.',
     items: [
       'SaaS — Software as a Service',
       'Automação de Processos (BPA)',
       'Mobile Apps (iOS e Android)',
-      'ERP / CRM Customizados',
       'Chatbots & Atendimento Auto'
     ]
   },
