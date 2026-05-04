@@ -19,6 +19,10 @@ import { EMAIL, INSTAGRAM, buildWhatsAppLink } from '../lib/contact';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
+/* Google Apps Script endpoint — receives form submissions and writes to Sheets */
+const SHEETS_URL =
+  'https://script.google.com/macros/s/AKfycbxOX2ImVx4kw-8ryCK2xbyxOn7bRS-P8Fmz5FFfTeTbOVRu4l520bkaKsR25eeRfYsdbw/exec';
+
 const OPTIONS = [
   {
     id: 'web',
@@ -127,6 +131,7 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   /* External prefill (e.g. service card click) jumps straight to step 2 */
   useEffect(() => {
@@ -186,21 +191,51 @@ const Contact = () => {
     setErrors((prev) => ({ ...prev, [k]: next[k] }));
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     const next = validate(data);
     setErrors(next);
     setTouched({ name: true, email: true, phone: true, message: true });
     if (Object.values(next).some(Boolean)) return;
+    if (sending) return;
 
+    setSending(true);
+
+    const servico = selected?.title || 'Conversa aberta';
+
+    /* 1) Send to Google Sheets via Apps Script.
+       Uses no-cors so the response is opaque — fire-and-forget on the client.
+       Failure here should NOT block the WhatsApp handoff. */
+    try {
+      await fetch(SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: data.name,
+          email: data.email,
+          telefone: data.phone,
+          empresa: data.company,
+          servico,
+          descricao: data.message
+        })
+      });
+    } catch (err) {
+      /* Silent — sheet write is best-effort, the WhatsApp link is the
+         primary handoff and must always run. */
+      console.warn('Sheets submission failed:', err);
+    }
+
+    /* 2) Hand off to WhatsApp with a pre-filled message */
     const text =
       `Olá SWN! Sou ${data.name} (${data.email})` +
       (data.company ? `, da ${data.company}` : '') +
       `.\nTelefone: ${data.phone}` +
-      `\nTenho interesse em: ${selected?.title || 'Conversa aberta'}.\n\n${data.message}`;
+      `\nTenho interesse em: ${servico}.\n\n${data.message}`;
 
     window.open(buildWhatsAppLink(text), '_blank', 'noopener');
     setSent(true);
+    setSending(false);
   };
 
   const fieldStatus = (k) => (touched[k] && errors[k] ? 'invalid' : '');
@@ -411,8 +446,12 @@ const Contact = () => {
                   </p>
                 )}
 
-                <button type="submit" className="btn-primary">
-                  {sent ? 'Mensagem preparada' : 'Enviar mensagem'}
+                <button type="submit" className="btn-primary" disabled={sending}>
+                  {sending
+                    ? 'Enviando…'
+                    : sent
+                      ? 'Mensagem preparada'
+                      : 'Enviar mensagem'}
                   <FiArrowRight className="btn-arrow" size={16} />
                 </button>
               </form>
