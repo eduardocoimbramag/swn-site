@@ -56,8 +56,32 @@ const initialData = {
   name: '',
   email: '',
   company: '',
+  phone: '',
   message: ''
 };
+
+/**
+ * Formata o telefone brasileiro como o usuário digita.
+ *  - Mantém só dígitos (máx 11)
+ *  - 0 dígitos → '' (mostra placeholder)
+ *  - 1-2 dígitos → '(XX'
+ *  - 3-6 dígitos → '(XX) XXXX'
+ *  - 7-10 dígitos → '(XX) XXXX-XXXX'  (fixo, 8 dígitos no número)
+ *  - 11 dígitos → '(XX) XXXXX-XXXX'   (celular, 9 dígitos no número)
+ */
+const formatPhone = (raw) => {
+  const digits = String(raw).replace(/\D/g, '').slice(0, 11);
+  if (!digits) return '';
+  if (digits.length <= 2) return `(${digits}`;
+  const ddd = digits.slice(0, 2);
+  const rest = digits.slice(2);
+  if (rest.length <= 4) return `(${ddd}) ${rest}`;
+  if (rest.length <= 8) return `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`;
+  /* 9 dígitos no número (celular) */
+  return `(${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`;
+};
+
+const phoneDigits = (formatted) => String(formatted).replace(/\D/g, '');
 
 const validate = (data) => {
   const errors = {};
@@ -71,6 +95,15 @@ const validate = (data) => {
     errors.email = 'Precisamos de um e-mail para responder.';
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
     errors.email = 'Confira o formato do e-mail.';
+  }
+
+  const digits = phoneDigits(data.phone);
+  if (!digits) {
+    errors.phone = 'Informe um telefone para contato.';
+  } else if (digits.length < 10) {
+    errors.phone = 'Telefone incompleto — DDD + 8 ou 9 dígitos.';
+  } else if (digits.length > 11) {
+    errors.phone = 'Confira o número — máximo 11 dígitos.';
   }
 
   if (!data.message.trim()) {
@@ -121,7 +154,8 @@ const Contact = () => {
   const goBack = () => setStep(1);
 
   const update = (k) => (e) => {
-    const value = e.target.value;
+    const raw = e.target.value;
+    const value = k === 'phone' ? formatPhone(raw) : raw;
     setData((d) => ({ ...d, [k]: value }));
     if (touched[k]) {
       setErrors((prev) => {
@@ -129,6 +163,21 @@ const Contact = () => {
         return { ...prev, [k]: next[k] };
       });
     }
+  };
+
+  /* Phone field shows "(" as soon as it gets focus, even before typing */
+  const handlePhoneFocus = () => {
+    if (!data.phone) {
+      setData((d) => ({ ...d, phone: '(' }));
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    /* If only "(" is left, clear it back to empty so placeholder reappears */
+    if (data.phone === '(') {
+      setData((d) => ({ ...d, phone: '' }));
+    }
+    handleBlur('phone')();
   };
 
   const handleBlur = (k) => () => {
@@ -141,13 +190,14 @@ const Contact = () => {
     e.preventDefault();
     const next = validate(data);
     setErrors(next);
-    setTouched({ name: true, email: true, message: true });
+    setTouched({ name: true, email: true, phone: true, message: true });
     if (Object.values(next).some(Boolean)) return;
 
     const text =
       `Olá SWN! Sou ${data.name} (${data.email})` +
       (data.company ? `, da ${data.company}` : '') +
-      `.\nTenho interesse em: ${selected?.title || 'Conversa aberta'}.\n\n${data.message}`;
+      `.\nTelefone: ${data.phone}` +
+      `\nTenho interesse em: ${selected?.title || 'Conversa aberta'}.\n\n${data.message}`;
 
     window.open(buildWhatsAppLink(text), '_blank', 'noopener');
     setSent(true);
@@ -293,17 +343,44 @@ const Contact = () => {
                   </div>
                 </div>
 
-                <div className="field">
-                  <label htmlFor="company">
-                    Empresa <span className="field-optional">(opcional)</span>
-                  </label>
-                  <input
-                    id="company"
-                    value={data.company}
-                    onChange={update('company')}
-                    placeholder="Sua empresa"
-                    autoComplete="organization"
-                  />
+                <div className="row">
+                  <div className="field">
+                    <label htmlFor="company">
+                      Empresa <span className="field-optional">(opcional)</span>
+                    </label>
+                    <input
+                      id="company"
+                      value={data.company}
+                      onChange={update('company')}
+                      placeholder="Sua empresa"
+                      autoComplete="organization"
+                    />
+                  </div>
+                  <div className={`field ${fieldStatus('phone')}`}>
+                    <label htmlFor="phone">
+                      Telefone <span className="field-required" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      id="phone"
+                      type="tel"
+                      inputMode="numeric"
+                      value={data.phone}
+                      onChange={update('phone')}
+                      onFocus={handlePhoneFocus}
+                      onBlur={handlePhoneBlur}
+                      placeholder="Seu número"
+                      autoComplete="tel"
+                      maxLength={15}
+                      aria-required="true"
+                      aria-invalid={!!(touched.phone && errors.phone)}
+                      aria-describedby={errors.phone ? 'err-phone' : undefined}
+                    />
+                    {touched.phone && errors.phone && (
+                      <span id="err-phone" className="field-error" role="alert">
+                        {errors.phone}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className={`field ${fieldStatus('message')}`}>
