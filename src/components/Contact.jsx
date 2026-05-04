@@ -15,7 +15,7 @@ import {
   FiHelpCircle
 } from 'react-icons/fi';
 import { onContactPrefill } from '../lib/contactBridge';
-import { EMAIL, INSTAGRAM, buildWhatsAppLink } from '../lib/contact';
+import { EMAIL, INSTAGRAM, INSTAGRAM_HANDLE, buildWhatsAppLink } from '../lib/contact';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
@@ -486,7 +486,7 @@ const Contact = () => {
               aria-label="Instagram"
             >
               <FiInstagram size={14} aria-hidden="true" />
-              <span>@swnstudio</span>
+              <span>{INSTAGRAM_HANDLE}</span>
               <FiArrowUpRight size={12} aria-hidden="true" />
             </a>
           </div>

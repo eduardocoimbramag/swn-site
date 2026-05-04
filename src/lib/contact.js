@@ -3,8 +3,9 @@
  * Update once, applied everywhere.
  */
 export const WHATSAPP_NUMBER = '5511999999999'; // TODO: substituir pelo nº real
-export const EMAIL = 'contato@swnstudio.com';
-export const INSTAGRAM = 'https://instagram.com/swnstudio';
+export const EMAIL = 'contato@swnstudio.com.br';
+export const INSTAGRAM = 'https://instagram.com/swn.stdio';
+export const INSTAGRAM_HANDLE = '@swn.stdio';
 export const LINKEDIN  = 'https://linkedin.com/company/swnstudio';
 export const YOUTUBE   = 'https://youtube.com/@swnstudio';
 export const SITE_URL  = 'https://swnstudio.com';
