@@ -7,7 +7,6 @@ import Services from './components/Services';
 import Process from './components/Process';
 import Portfolio from './components/Portfolio';
 import Testimonials from './components/Testimonials';
-import FinalCTA from './components/FinalCTA';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
@@ -27,7 +26,6 @@ function App() {
         <Process />
         <Portfolio />
         <Testimonials />
-        <FinalCTA />
         <Contact />
       </main>
       <Footer />

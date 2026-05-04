@@ -4,20 +4,18 @@ import { FiLinkedin } from 'react-icons/fi';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
-const featured = {
-  text:
-    'A SWN traduziu nossa marca em uma experiência digital que finalmente representa quem somos. Sutil, sofisticado e funcional — exatamente o que vendíamos no atendimento mas não conseguíamos mostrar online.',
-  name: 'Marina Costa',
-  role: 'CEO',
-  company: 'Atelier Nordi',
-  initials: 'MC',
-  linkedin: 'https://linkedin.com/in/'
-};
-
-const items = [
+/* Compact testimonials — short, scannable, premium. */
+const quotes = [
   {
-    text:
-      'Saímos do improviso. O sistema construído pela SWN automatizou processos que consumiam o nosso time inteiro.',
+    text: 'Sutil, sofisticado e funcional — exatamente o que vendíamos no atendimento e não conseguíamos mostrar online.',
+    name: 'Marina Costa',
+    role: 'CEO',
+    company: 'Atelier Nordi',
+    initials: 'MC',
+    linkedin: 'https://linkedin.com/in/'
+  },
+  {
+    text: 'Saímos do improviso. O sistema da SWN automatizou processos que consumiam o time inteiro.',
     name: 'Rafael Lima',
     role: 'COO',
     company: 'Vexa Group',
@@ -25,12 +23,27 @@ const items = [
     linkedin: 'https://linkedin.com/in/'
   },
   {
-    text:
-      'Profissionais raros. Entrega de agência grande, com o cuidado de uma boutique. Recomendo sem ressalva.',
+    text: 'Profissionais raros. Entrega de agência grande, com o cuidado de uma boutique.',
     name: 'Helena Duarte',
     role: 'Founder',
     company: 'Casa Plena',
     initials: 'HD',
+    linkedin: 'https://linkedin.com/in/'
+  },
+  {
+    text: 'Resultado mensurável em poucas semanas. Marca posicionada e métricas crescendo juntas.',
+    name: 'Lucas Andrade',
+    role: 'CMO',
+    company: 'Lumen Labs',
+    initials: 'LA',
+    linkedin: 'https://linkedin.com/in/'
+  },
+  {
+    text: 'Atenção aos detalhes que fez diferença real. Tudo soa premium, do micro-interação ao copy.',
+    name: 'Sofia Reis',
+    role: 'Head of Design',
+    company: 'Studio Marche',
+    initials: 'SR',
     linkedin: 'https://linkedin.com/in/'
   }
 ];
@@ -52,25 +65,8 @@ const Avatar = ({ initials }) => (
   </div>
 );
 
-const CompanyLogo = ({ name }) => (
-  <span className="testimonial-company" aria-label={name}>
-    <span className="testimonial-company-mark" aria-hidden="true">
-      {name.charAt(0)}
-    </span>
-    <span className="testimonial-company-name">{name}</span>
-  </span>
-);
-
-const TestimonialCard = ({ item, featured: isFeatured }) => (
-  <motion.figure
-    className={`testimonial ${isFeatured ? 'testimonial--featured' : ''}`}
-    initial={{ opacity: 0, y: 28, filter: 'blur(6px)' }}
-    whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-    viewport={{ once: true, margin: '-60px' }}
-    transition={{ duration: 0.9, ease: swanEase }}
-  >
-    <span className="testimonial-quote" aria-hidden="true">&ldquo;</span>
-
+const TestimonialCard = ({ item }) => (
+  <figure className="testimonial">
     <blockquote>
       <p>{item.text}</p>
     </blockquote>
@@ -80,7 +76,7 @@ const TestimonialCard = ({ item, featured: isFeatured }) => (
       <div className="testimonial-author-meta">
         <strong>{item.name}</strong>
         <span className="testimonial-role">
-          {item.role} · <CompanyLogo name={item.company} />
+          {item.role} · {item.company}
         </span>
       </div>
       <a
@@ -90,13 +86,16 @@ const TestimonialCard = ({ item, featured: isFeatured }) => (
         rel="noopener noreferrer"
         aria-label={`LinkedIn de ${item.name}`}
       >
-        <FiLinkedin size={16} />
+        <FiLinkedin size={14} />
       </a>
     </figcaption>
-  </motion.figure>
+  </figure>
 );
 
 const Testimonials = () => {
+  /* Duplicate the list so the marquee loops seamlessly */
+  const loop = [...quotes, ...quotes];
+
   return (
     <section id="testimonials" className="testimonials">
       <div className="section-head">
@@ -111,11 +110,14 @@ const Testimonials = () => {
         </motion.h2>
       </div>
 
-      <div className="testimonials-layout">
-        <TestimonialCard item={featured} featured />
-        <div className="testimonials-side">
-          {items.map((t) => (
-            <TestimonialCard key={t.name} item={t} />
+      <div className="testimonials-marquee" aria-label="Depoimentos de clientes">
+        {/* Edge fades */}
+        <div className="testimonials-edge testimonials-edge--left" aria-hidden="true" />
+        <div className="testimonials-edge testimonials-edge--right" aria-hidden="true" />
+
+        <div className="testimonials-track">
+          {loop.map((q, i) => (
+            <TestimonialCard key={`${q.name}-${i}`} item={q} />
           ))}
         </div>
       </div>
