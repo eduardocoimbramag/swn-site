@@ -2241,8 +2241,10 @@ button {
   border-bottom: 1px solid var(--border);
 }
 
-.footer-brand img {
-  height: 28px;
+.footer-brand .footer-logo {
+  height: 44px;
+  width: auto;
+  display: block;
   margin-bottom: 1.25rem;
 }
 

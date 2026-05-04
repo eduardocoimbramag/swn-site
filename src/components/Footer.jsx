@@ -16,7 +16,7 @@ const Footer = () => {
       <div className="footer-content">
         <div className="footer-top">
           <div className="footer-brand">
-            <img src="/logo-branca.png" alt="SWN Studio" width="120" height="28" loading="lazy" decoding="async" />
+            <img src="/logo-branca.png" alt="SWN Studio" className="footer-logo" loading="lazy" decoding="async" />
             <p>
               Estúdio digital premium especializado em software, web e design.
               Onde a beleza encontra a performance.
