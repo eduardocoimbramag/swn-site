@@ -1,36 +1,23 @@
 import React from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import About from './components/About';
-import LogoParallax from './components/LogoParallax';
-import Services from './components/Services';
-import Process from './components/Process';
-import Portfolio from './components/Portfolio';
-import Testimonials from './components/Testimonials';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import CasesIndex from './pages/CasesIndex';
+import CasePage from './pages/CasePage';
+import ScrollToTop from './components/ScrollToTop';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
-import WaveDivider from './components/svg/WaveDivider';
 
 function App() {
   return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-        <About />
-        <WaveDivider />
-        <LogoParallax />
-        <Services />
-        <WaveDivider flip />
-        <Process />
-        <Portfolio />
-        <Testimonials />
-        <Contact />
-      </main>
-      <Footer />
+    <BrowserRouter>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/cases" element={<CasesIndex />} />
+        <Route path="/cases/:slug" element={<CasePage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
       <FloatingWhatsApp />
-    </>
+    </BrowserRouter>
   );
 }
 

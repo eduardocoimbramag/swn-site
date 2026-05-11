@@ -1,77 +1,21 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight, FiArrowUpRight } from 'react-icons/fi';
+import { cases } from '../data/cases';
 import {
   DashboardMockup,
   MobileMockup,
   SiteMockup
 } from './svg/PortfolioMockups';
 
-const swanEase = [0.22, 1, 0.36, 1];
-
-const cases = [
-  {
-    id: 'vexa',
-    tag: 'SaaS · Software',
-    boldLead: 'Plataforma de gestão.',
-    text: 'SaaS multitenant que automatizou fluxos operacionais e reduziu o tempo de resposta interna em mais de um terço.',
-    metric: { value: '−38%', label: 'tempo operacional' },
-    stack: ['Next.js', 'Postgres', 'tRPC'],
-    mockup: 'dashboard',
-    accent:
-      'linear-gradient(135deg, rgba(131, 223, 233, 0.22), rgba(131, 223, 233, 0.04))'
-  },
-  {
-    id: 'casaplena',
-    tag: 'Mobile · App nativo',
-    boldLead: 'App de fidelidade.',
-    text: 'Aplicativo nativo iOS/Android com push notifications, analytics em tempo real e integração total ao backend do cliente.',
-    metric: { value: '12k', label: 'downloads em 90 dias' },
-    stack: ['React Native', 'Expo', 'Firebase'],
-    mockup: 'mobile',
-    accent:
-      'linear-gradient(180deg, rgba(131, 223, 233, 0.18), rgba(0, 0, 0, 0.4))'
-  },
-  {
-    id: 'nordi',
-    tag: 'Web · Institucional',
-    boldLead: 'Site institucional premium.',
-    text: 'Reposicionamento digital com narrativa de marca, motion design e foco em captação qualificada de leads B2B.',
-    metric: { value: '+72%', label: 'leads qualificados' },
-    stack: ['React', 'Vite', 'Framer Motion'],
-    mockup: 'site',
-    accent:
-      'linear-gradient(135deg, rgba(131, 223, 233, 0.16), rgba(131, 223, 233, 0.02))'
-  },
-  {
-    id: 'marche',
-    tag: 'E-commerce · Web',
-    boldLead: 'Loja virtual de alta conversão.',
-    text: 'Plataforma com integração de pagamentos, controle de estoque em tempo real e design premium focado em CRO.',
-    metric: { value: '180', label: 'pedidos / dia' },
-    stack: ['Shopify', 'Hydrogen', 'Klaviyo'],
-    mockup: 'site',
-    accent:
-      'linear-gradient(135deg, rgba(131, 223, 233, 0.20), rgba(131, 223, 233, 0.04))'
-  },
-  {
-    id: 'lumen',
-    tag: 'SaaS · Analytics',
-    boldLead: 'Dashboard de BI sob medida.',
-    text: 'Suite analítica com visualizações customizadas, exportação automatizada e permissões granulares por equipe.',
-    metric: { value: '4x', label: 'velocidade de decisão' },
-    stack: ['React', 'D3.js', 'GraphQL'],
-    mockup: 'dashboard',
-    accent:
-      'linear-gradient(135deg, rgba(131, 223, 233, 0.22), rgba(131, 223, 233, 0.04))'
-  }
-];
-
 const Mockup = ({ kind }) => {
   if (kind === 'dashboard') return <DashboardMockup />;
   if (kind === 'mobile') return <MobileMockup />;
   return <SiteMockup />;
 };
+
+const swanEase = [0.22, 1, 0.36, 1];
 
 const Portfolio = () => {
   const trackRef = useRef(null);
@@ -130,17 +74,17 @@ const Portfolio = () => {
           </p>
         </motion.div>
 
-        <motion.a
-          className="cases-head-link"
-          href="#contact"
+        <motion.div
           initial={{ opacity: 0, x: -8 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.8, delay: 0.2, ease: swanEase }}
         >
-          Conheça todos os cases
-          <FiArrowUpRight size={16} aria-hidden="true" />
-        </motion.a>
+          <Link to="/cases" className="cases-head-link">
+            Conheça todos os cases
+            <FiArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+        </motion.div>
       </div>
 
       <div className="cases-track-wrap">
@@ -165,20 +109,20 @@ const Portfolio = () => {
                   <Mockup kind={c.mockup} />
                 </div>
                 <span className="case-tag">{c.tag}</span>
-                <a
-                  href="#services"
+                <Link
+                  to={`/cases/${c.slug}`}
                   className="case-cta"
-                  aria-label={`Conheça nossos cases — ${c.boldLead}`}
+                  aria-label={`Conheça o case ${c.client}`}
                 >
-                  Conheça nossos cases
+                  Conheça este case
                   <FiArrowUpRight size={12} aria-hidden="true" />
-                </a>
+                </Link>
               </div>
 
               <div className="case-body">
                 <p className="case-text">
                   <strong>{c.boldLead}</strong>{' '}
-                  <span className="case-text-mute">{c.text}</span>
+                  <span className="case-text-mute">{c.cardText}</span>
                 </p>
               </div>
             </motion.li>
