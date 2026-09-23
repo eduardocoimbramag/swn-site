@@ -189,7 +189,7 @@ const CasePage = () => {
             )}
           </aside>
 
-          {/* ─── CONTENT — middle column ─── */}
+          {/* ─── CONTENT — main column (takes all the space beside the rail) ─── */}
           <article className="case-content">
             {/* Hero */}
             <motion.section
@@ -201,6 +201,18 @@ const CasePage = () => {
               <h1 className="case-hero-client">{caseData.client}</h1>
               <p className="case-hero-headline">{caseData.headline}</p>
               <p className="case-hero-subhead">{caseData.subhead}</p>
+
+              {caseData.liveUrl && (
+                <a
+                  className="case-live-link"
+                  href={caseData.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Ver projeto ao vivo
+                  <FiArrowUpRight size={14} aria-hidden="true" />
+                </a>
+              )}
 
               <div className="case-hero-image">
                 <CaseImage
@@ -308,42 +320,6 @@ const CasePage = () => {
               </motion.section>
             )}
           </article>
-
-          {/* ─── META — right column ─── */}
-          <aside className="case-meta" aria-label="Informações do projeto">
-            <div className="case-meta-block">
-              <span className="case-meta-label">Cliente</span>
-              <strong>{caseData.client}</strong>
-            </div>
-            <div className="case-meta-block">
-              <span className="case-meta-label">Setor</span>
-              <strong>{caseData.sector}</strong>
-            </div>
-            <div className="case-meta-block">
-              <span className="case-meta-label">Ano</span>
-              <strong>{caseData.year}</strong>
-            </div>
-            <div className="case-meta-block">
-              <span className="case-meta-label">Duração</span>
-              <strong>{caseData.duration}</strong>
-            </div>
-            <div className="case-meta-block">
-              <span className="case-meta-label">Time SWN</span>
-              <strong>{caseData.teamSize} {caseData.teamSize === 1 ? 'pessoa' : 'pessoas'}</strong>
-            </div>
-
-            {caseData.liveUrl && (
-              <a
-                className="case-meta-link"
-                href={caseData.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Ver projeto ao vivo
-                <FiArrowUpRight size={14} aria-hidden="true" />
-              </a>
-            )}
-          </aside>
         </div>
       </main>
       <Footer />

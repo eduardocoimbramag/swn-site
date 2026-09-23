@@ -44,7 +44,7 @@ Um case novo aparece em quatro lugares:
 | Lugar | O que mostra |
 |---|---|
 | Galeria da categoria (`/cases/saas`) | Card com capa, tag, nome do cliente, frase de destaque e texto |
-| Página do case | Tudo: topo, métricas, desafio, solução, resultado, depoimento, stack e ficha técnica |
+| Página do case | Tudo: topo, métricas, desafio, solução, resultado, depoimento e stack |
 | Lateral "Nesta categoria" (páginas dos outros cases da mesma categoria) | Nome do cliente + tag |
 | "Próximo case" (fim da página do case anterior da mesma categoria) | Nome do cliente + tag |
 
@@ -68,26 +68,27 @@ Um case novo aparece em quatro lugares:
 ### Página do case
 
 ```
-┌─ lateral ──────┐ ┌─ conteúdo ──────────────────────┐ ┌─ ficha ───────┐
-│ VOLTAR PARA    │ │ [SAAS · SOFTWARE]     ← tag     │ │ Cliente       │
-│ ← SaaS         │ │ Vexa Group            ← cliente │ │ Setor         │
-│ ← Todos        │ │ Headline                        │ │ Ano           │
-│                │ │ Subtítulo                       │ │ Duração       │
-│ NESTA PÁGINA   │ │ ┌─────────────────────────────┐ │ │ Time SWN      │
-│ Sobre          │ │ │ imagem principal (16:10)    │ │ │ [Ver ao vivo] │
-│ Desafio        │ │ └─────────────────────────────┘ │ └───────────────┘
-│ Solução        │ │  −38%       2.5x       14k      │
-│ Resultado      │ │  (3 métricas)                   │
-│ Stack & Time   │ │ 01 · O desafio                  │
-│                │ │ 02 · A solução + entregas       │
-│ NESTA          │ │ 03 · O resultado                │
-│ CATEGORIA      │ │ "Depoimento" — nome, cargo      │
-│ outros cases   │ │ 04 · Stack & Time               │
-│                │ │ Próximo case →                  │
-└────────────────┘ └─────────────────────────────────┘
+┌─ lateral ──────┐ ┌─ conteúdo ──────────────────────────────────┐
+│ VOLTAR PARA    │ │ [SAAS · SOFTWARE]               ← tag       │
+│ ← SaaS         │ │ Vexa Group                      ← cliente   │
+│ ← Todos        │ │ Headline                                    │
+│                │ │ Subtítulo                                   │
+│ NESTA PÁGINA   │ │ [Ver projeto ao vivo ↗]    ← se houver link │
+│ Sobre          │ │ ┌─────────────────────────────────────────┐ │
+│ Desafio        │ │ │        imagem principal (16:10)         │ │
+│ Solução        │ │ └─────────────────────────────────────────┘ │
+│ Resultado      │ │  −38%            2.5x              14k      │
+│ Stack & Time   │ │  (3 métricas)                               │
+│                │ │ 01 · O desafio                              │
+│ NESTA          │ │ 02 · A solução + entregas                   │
+│ CATEGORIA      │ │ 03 · O resultado                            │
+│ outros cases   │ │ "Depoimento" — nome, cargo                  │
+│                │ │ 04 · Stack & Time                           │
+│                │ │ Próximo case →                              │
+└────────────────┘ └─────────────────────────────────────────────┘
 ```
 
-No celular as três colunas viram uma só (lateral → conteúdo → ficha). Os títulos das seções ("O desafio", "A solução", "O resultado", "Como foi construído") são fixos. Você não precisa mandar.
+No celular as duas colunas viram uma só (lateral → conteúdo). Os títulos das seções ("O desafio", "A solução", "O resultado", "Como foi construído") são fixos. Você não precisa mandar.
 
 ---
 
@@ -119,12 +120,8 @@ Todo case precisa de **pelo menos uma** categoria. Ele aparece na galeria de cad
 
 | Campo | Status | Onde aparece |
 |---|---|---|
-| Nome do cliente | **Obrigatório** | card, título da página, ficha, lateral |
+| Nome do cliente | **Obrigatório** | card, título da página, marca d'água da imagem, lateral |
 | Categoria(s) | **Obrigatório** | em quais galerias o case aparece |
-| Setor do cliente | **Obrigatório** | ficha técnica |
-| Ano | **Obrigatório** | ficha técnica |
-| Duração | **Obrigatório** | ficha técnica |
-| Time SWN | **Obrigatório** | ficha técnica |
 | Tag | **Obrigatório** | card, topo da página, lateral, "Próximo case" |
 | Frase de destaque | **Obrigatório** | card |
 | Texto do card | **Obrigatório** | card |
@@ -138,7 +135,7 @@ Todo case precisa de **pelo menos uma** categoria. Ele aparece na galeria de cad
 | Stack / ferramentas | **Obrigatório** | seção 04 |
 | Integrações | Opcional | seção 04 |
 | Depoimento | Recomendado | bloco de citação |
-| Link ao vivo | Opcional | botão "Ver projeto ao vivo" na ficha |
+| Link ao vivo | Opcional | botão "Ver projeto ao vivo", abaixo do subtítulo |
 | Imagem principal | Recomendado | capa do card e topo da página |
 | Telas extras | Opcional | capa alternativa e futura galeria |
 
@@ -150,18 +147,16 @@ Todo case precisa de **pelo menos uma** categoria. Ele aparece na galeria de cad
 
 Os limites abaixo foram medidos nos cases que já estão no site. Dentro deles, o case novo fica com o mesmo ritmo visual: cards da mesma altura, títulos em uma linha, blocos equilibrados. Se passar do limite, eu ajusto e te mostro.
 
-### 4.1 Identificação e ficha técnica
+### 4.1 Identificação
 
 | Campo | O que é | Limite | Exemplos |
 |---|---|---|---|
 | **Cliente** | Nome como deve aparecer (grafia oficial, maiúsculas e acentos) | até ~24 caracteres | `Vexa Group`, `Atelier Nordi` |
-| **Setor** | Segmento de mercado do cliente. Use ` · ` para detalhar | até 22 caracteres | `Logística B2B`, `Varejo · Fidelidade`, `Moda · B2B` |
-| **Ano** | Ano de entrega ou de lançamento | 4 dígitos | `2025` |
-| **Duração** | Tempo total do projeto, por extenso | curto | `6 semanas`, `4 meses` |
-| **Time SWN** | Nº de pessoas da SWN no projeto (o site escreve "pessoa"/"pessoas") | número | `3` |
-| **Link ao vivo** *(opcional)* | URL pública e estável (site no ar, app na loja) | — | `https://…` |
+| **Link ao vivo** *(opcional)* | URL pública e estável (site no ar, app na loja). Vira o botão "Ver projeto ao vivo", abaixo do subtítulo | — | `https://…` |
 
 > O endereço (slug) do case eu crio a partir do nome: `vexa-group-plataforma-gestao`. Não precisa mandar.
+>
+> A página não tem mais ficha técnica (setor, ano, duração, time). Se algum desses dados valorizar o case, ele entra no texto. Ex.: "Reescrevemos o sistema interno **em 4 meses**…"
 
 ### 4.2 Card da galeria
 
@@ -431,10 +426,6 @@ Copie o bloco abaixo para `case.md` e preencha. Os números entre parênteses s�
 - Posso citar o nome do cliente? (sim / não — se não, como chamar):
 - Categoria principal:
 - Outras categorias (opcional):
-- Setor do cliente (até 22):
-- Ano de entrega:
-- Duração do projeto:
-- Time SWN (nº de pessoas):
 - Link ao vivo (opcional):
 - Posição na galeria (último / primeiro / depois de ___):
 
@@ -507,10 +498,6 @@ Entregas (3–5 itens, até 45 cada):
 - Posso citar o nome do cliente? sim
 - Categoria principal: SaaS
 - Outras categorias: Sistema de gestão
-- Setor do cliente: Logística B2B
-- Ano de entrega: 2024
-- Duração do projeto: 4 meses
-- Time SWN: 3
 - Link ao vivo: —
 - Posição na galeria: primeiro
 

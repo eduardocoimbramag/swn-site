@@ -3424,7 +3424,7 @@ button {
   color: var(--text-mute);
 }
 
-/* ---------- Case Page — 3 columns ---------- */
+/* ---------- Case Page — navigation rail + content ---------- */
 .case-page {
   padding-top: clamp(5rem, 10vh, 7rem);
   padding-bottom: 5rem;
@@ -3432,7 +3432,7 @@ button {
 
 .case-page-shell {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 240px;
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: clamp(2rem, 4vw, 4rem);
   max-width: var(--container-wide);
   margin: 0 auto;
@@ -3751,7 +3751,8 @@ button {
   line-height: 1.65;
   color: var(--text-soft);
   margin: 0 0 1.5rem;
-  max-width: 60ch;
+  max-width: 68ch;
+  text-wrap: balance;
 }
 
 .case-hero-image {
@@ -3820,13 +3821,15 @@ button {
   color: var(--white);
 }
 
+/* Wide content column: slightly larger text and a longer (still readable) measure */
 .case-block p {
   font-family: 'Manrope', sans-serif;
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: 1.0625rem;
+  line-height: 1.75;
   color: var(--text-soft);
   margin: 0;
-  max-width: 65ch;
+  max-width: 72ch;
+  text-wrap: pretty;
 }
 
 .case-features {
@@ -3835,6 +3838,14 @@ button {
   padding: 0;
   display: grid;
   gap: 0.65rem;
+}
+
+/* Two columns once the content column is wide (no right-hand meta column) */
+@media (min-width: 1200px) {
+  .case-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 2rem;
+  }
 }
 
 .case-features li {
@@ -4025,55 +4036,14 @@ button {
   letter-spacing: 0.02em;
 }
 
-/* Meta (right column) */
-.case-meta {
-  position: sticky;
-  top: calc(72px + 1.5rem);
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.75rem 1.5rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-}
-
-.case-meta-block {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px dashed var(--border);
-}
-
-.case-meta-block:last-of-type {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.case-meta-label {
-  font-family: 'Sora', sans-serif;
-  font-size: 0.66rem;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--text-mute);
-}
-
-.case-meta-block strong {
-  font-family: 'Sora', sans-serif;
-  font-weight: 600;
-  font-size: 0.94rem;
-  color: var(--white);
-  letter-spacing: -0.005em;
-}
-
-.case-meta-link {
+/* "Ver projeto ao vivo" — under the subhead, only when the case has a public URL */
+.case-live-link {
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   padding: 0.65rem 0.9rem;
-  margin-top: 0.5rem;
+  margin: -0.75rem 0 1.5rem;
   font-family: 'Sora', sans-serif;
   font-size: 0.82rem;
   font-weight: 500;
@@ -4085,18 +4055,18 @@ button {
   transition: background 0.4s var(--ease-swan), border-color 0.4s ease, color 0.3s ease, transform 0.4s var(--ease-swan);
 }
 
-.case-meta-link:hover {
+.case-live-link:hover {
   background: rgba(131, 223, 233, 0.14);
   border-color: var(--cyan);
   color: var(--white);
   transform: translateY(-2px);
 }
 
-.case-meta-link svg {
+.case-live-link svg {
   transition: transform 0.4s var(--ease-swan);
 }
 
-.case-meta-link:hover svg {
+.case-live-link:hover svg {
   transform: translate(2px, -2px);
 }
 
@@ -4104,22 +4074,6 @@ button {
 @media (max-width: 1199px) {
   .case-page-shell {
     grid-template-columns: 240px minmax(0, 1fr);
-  }
-  .case-meta {
-    grid-column: 1 / -1;
-    position: relative;
-    top: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1rem 1.5rem;
-  }
-  .case-meta-block {
-    padding-bottom: 0;
-    border-bottom: 0;
-  }
-  .case-meta-link {
-    grid-column: 1 / -1;
-    align-self: flex-start;
   }
 }
 

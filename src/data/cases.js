@@ -13,10 +13,6 @@ import { caseCategories, getCategoryPath } from './caseCategories';
  *   categories  → slugs das categorias em que o projeto aparece; a primeira é
  *                 a principal (define a URL canônica)
  *   client      → nome do cliente (display)
- *   sector      → segmento de mercado
- *   year        → ano do projeto
- *   duration    → duração total
- *   teamSize    → tamanho do time SWN no projeto
  *
  *   tag         → rótulo curto sobre a imagem do card ("SaaS · Software")
  *   boldLead    → primeira frase em bold do card ("Plataforma de gestão.")
@@ -37,7 +33,7 @@ import { caseCategories, getCategoryPath } from './caseCategories';
  *   integrations[]  → integrações externas
  *
  *   testimonial → quote específica do case (opcional)
- *   liveUrl     → URL pública do projeto (opcional)
+ *   liveUrl     → URL pública do projeto (opcional) — vira o botão "Ver projeto ao vivo"
  */
 
 export const cases = [
@@ -46,10 +42,6 @@ export const cases = [
     slug: 'vexa-group-plataforma-gestao',
     categories: ['saas', 'sistema-de-gestao'],
     client: 'Vexa Group',
-    sector: 'Logística B2B',
-    year: 2024,
-    duration: '4 meses',
-    teamSize: 3,
 
     tag: 'SaaS · Software',
     boldLead: 'Plataforma de gestão.',
@@ -111,10 +103,6 @@ export const cases = [
     slug: 'casa-plena-app-fidelidade',
     categories: ['crm'],
     client: 'Casa Plena',
-    sector: 'Varejo · Fidelidade',
-    year: 2024,
-    duration: '3 meses',
-    teamSize: 2,
 
     tag: 'Mobile · App nativo',
     boldLead: 'App de fidelidade.',
@@ -176,10 +164,6 @@ export const cases = [
     slug: 'atelier-nordi-site-institucional',
     categories: ['site-institucional'],
     client: 'Atelier Nordi',
-    sector: 'Moda · B2B',
-    year: 2024,
-    duration: '6 semanas',
-    teamSize: 2,
 
     tag: 'Web · Institucional',
     boldLead: 'Site institucional premium.',
@@ -241,10 +225,6 @@ export const cases = [
     slug: 'studio-marche-loja-virtual',
     categories: ['e-commerce'],
     client: 'Studio Marche',
-    sector: 'E-commerce · Beleza',
-    year: 2024,
-    duration: '5 semanas',
-    teamSize: 3,
 
     tag: 'E-commerce · Web',
     boldLead: 'Loja virtual de alta conversão.',
@@ -306,10 +286,6 @@ export const cases = [
     slug: 'lumen-labs-dashboard-bi',
     categories: ['saas', 'sistema-de-gestao'],
     client: 'Lumen Labs',
-    sector: 'SaaS · Analytics',
-    year: 2025,
-    duration: '5 meses',
-    teamSize: 4,
 
     tag: 'SaaS · Analytics',
     boldLead: 'Dashboard de BI sob medida.',
