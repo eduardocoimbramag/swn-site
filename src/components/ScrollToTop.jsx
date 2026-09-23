@@ -13,11 +13,13 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     if (hash) {
-      /* Defer one frame so the target section has been mounted by React */
+      /* Defer one frame so the target section has been mounted by React.
+         'instant' behavior avoids racing with Framer Motion's useScroll
+         initial measurement on the just-mounted route. */
       const raf = requestAnimationFrame(() => {
         const el = document.querySelector(hash);
         if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          el.scrollIntoView({ behavior: 'instant', block: 'start' });
         } else {
           window.scrollTo({ top: 0, behavior: 'instant' });
         }
