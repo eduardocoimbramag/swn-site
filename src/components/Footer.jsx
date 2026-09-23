@@ -1,15 +1,20 @@
 import React from 'react';
 import { FiInstagram, FiLinkedin, FiMail, FiYoutube } from 'react-icons/fi';
 import { EMAIL, INSTAGRAM, LINKEDIN, YOUTUBE } from '../lib/contact';
+import { useSectionNav } from '../hooks/useSectionNav';
 
 const Footer = () => {
   const year = new Date().getFullYear();
+  const { hrefFor, goTo } = useSectionNav();
 
-  const goTo = (id) => (e) => {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  /* Link props for a home section — works from any route */
+  const section = (id) => ({
+    href: hrefFor(id),
+    onClick: (e) => {
+      e.preventDefault();
+      goTo(id);
+    }
+  });
 
   return (
     <footer className="footer">
@@ -26,20 +31,20 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Serviços</h4>
             <ul>
-              <li><a href="#services" onClick={goTo('services')}>Software Development</a></li>
-              <li><a href="#services" onClick={goTo('services')}>Web Development</a></li>
-              <li><a href="#services" onClick={goTo('services')}>Design & Social Media</a></li>
-              <li><a href="#services" onClick={goTo('services')}>Branding</a></li>
+              <li><a {...section('services')}>Software Development</a></li>
+              <li><a {...section('services')}>Web Development</a></li>
+              <li><a {...section('services')}>Design & Social Media</a></li>
+              <li><a {...section('services')}>Branding</a></li>
             </ul>
           </div>
 
           <div className="footer-col">
             <h4>Estúdio</h4>
             <ul>
-              <li><a href="#about" onClick={goTo('about')}>Sobre</a></li>
-              <li><a href="#process" onClick={goTo('process')}>Processo</a></li>
-              <li><a href="#portfolio" onClick={goTo('portfolio')}>Cases</a></li>
-              <li><a href="#testimonials" onClick={goTo('testimonials')}>Depoimentos</a></li>
+              <li><a {...section('about')}>Sobre</a></li>
+              <li><a {...section('process')}>Processo</a></li>
+              <li><a {...section('portfolio')}>Cases</a></li>
+              <li><a {...section('testimonials')}>Depoimentos</a></li>
             </ul>
           </div>
 
@@ -47,7 +52,7 @@ const Footer = () => {
             <h4>Contato</h4>
             <ul>
               <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
-              <li><a href="#contact" onClick={goTo('contact')}>Solicitar proposta</a></li>
+              <li><a {...section('contact')}>Solicitar proposta</a></li>
             </ul>
           </div>
         </div>

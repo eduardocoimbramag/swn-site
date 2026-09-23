@@ -1,19 +1,27 @@
+import { caseCategories, getCategoryPath } from './caseCategories';
+
 /**
- * Cases — fonte única para o carrossel da landing E para as páginas individuais.
+ * Cases — projetos exibidos na galeria de cada categoria e nas páginas
+ * individuais (/cases/:categoria/:slug).
+ *
+ * Para publicar um projeto novo, basta adicionar um objeto a este array com o
+ * slug de uma ou mais categorias em `categories` (ver caseCategories.js).
  *
  * Schema:
  *   id          → identificador curto, usado em keys
- *   slug        → URL legível, /cases/:slug
+ *   slug        → URL legível, /cases/:categoria/:slug
+ *   categories  → slugs das categorias em que o projeto aparece; a primeira é
+ *                 a principal (define a URL canônica)
  *   client      → nome do cliente (display)
  *   sector      → segmento de mercado
  *   year        → ano do projeto
  *   duration    → duração total
  *   teamSize    → tamanho do time SWN no projeto
  *
- *   tag         → categoria curta para o card do carrossel ("SaaS · Software")
+ *   tag         → rótulo curto sobre a imagem do card ("SaaS · Software")
  *   boldLead    → primeira frase em bold do card ("Plataforma de gestão.")
  *   cardText    → restante do texto do card (~120 chars)
- *   mockup      → kind do mockup ('dashboard' | 'mobile' | 'site')
+ *   mockup      → kind do mockup (ver Mockup em svg/PortfolioMockups.jsx)
  *   accent      → gradient CSS aplicado no card (e na imagem hero da página)
  *
  *   metrics[]   → array de até 3 métricas { value, label }
@@ -36,6 +44,7 @@ export const cases = [
   {
     id: 'vexa-group',
     slug: 'vexa-group-plataforma-gestao',
+    categories: ['saas', 'sistema-de-gestao'],
     client: 'Vexa Group',
     sector: 'Logística B2B',
     year: 2024,
@@ -100,6 +109,7 @@ export const cases = [
   {
     id: 'casa-plena',
     slug: 'casa-plena-app-fidelidade',
+    categories: ['crm'],
     client: 'Casa Plena',
     sector: 'Varejo · Fidelidade',
     year: 2024,
@@ -164,6 +174,7 @@ export const cases = [
   {
     id: 'atelier-nordi',
     slug: 'atelier-nordi-site-institucional',
+    categories: ['site-institucional'],
     client: 'Atelier Nordi',
     sector: 'Moda · B2B',
     year: 2024,
@@ -228,6 +239,7 @@ export const cases = [
   {
     id: 'studio-marche',
     slug: 'studio-marche-loja-virtual',
+    categories: ['e-commerce'],
     client: 'Studio Marche',
     sector: 'E-commerce · Beleza',
     year: 2024,
@@ -238,7 +250,7 @@ export const cases = [
     boldLead: 'Loja virtual de alta conversão.',
     cardText:
       'Plataforma com integração de pagamentos, controle de estoque em tempo real e design premium focado em CRO.',
-    mockup: 'site',
+    mockup: 'store',
     accent:
       'linear-gradient(135deg, rgba(131, 223, 233, 0.20), rgba(131, 223, 233, 0.04))',
 
@@ -292,6 +304,7 @@ export const cases = [
   {
     id: 'lumen-labs',
     slug: 'lumen-labs-dashboard-bi',
+    categories: ['saas', 'sistema-de-gestao'],
     client: 'Lumen Labs',
     sector: 'SaaS · Analytics',
     year: 2025,
@@ -354,19 +367,34 @@ export const cases = [
   }
 ];
 
+/* Em dev, avisa sobre slugs de categoria digitados errado */
+if (import.meta.env.DEV) {
+  const known = new Set(caseCategories.map((c) => c.slug));
+  cases.forEach((c) =>
+    c.categories.forEach((slug) => {
+      if (!known.has(slug)) {
+        console.warn(`[cases] "${c.id}" referencia a categoria inexistente "${slug}".`);
+      }
+    })
+  );
+}
+
 /* Helpers */
 
 export const getCaseBySlug = (slug) =>
   cases.find((c) => c.slug === slug);
 
-export const getNextCase = (slug) => {
-  const idx = cases.findIndex((c) => c.slug === slug);
-  if (idx === -1) return null;
-  return cases[(idx + 1) % cases.length];
-};
+export const getCasesByCategory = (categorySlug) =>
+  cases.filter((c) => c.categories.includes(categorySlug));
 
-export const getPrevCase = (slug) => {
-  const idx = cases.findIndex((c) => c.slug === slug);
-  if (idx === -1) return null;
-  return cases[(idx - 1 + cases.length) % cases.length];
+/* URL do case; sem categoria explícita, usa a principal (canônica) */
+export const getCasePath = (caseData, categorySlug = caseData.categories[0]) =>
+  `${getCategoryPath(categorySlug)}/${caseData.slug}`;
+
+/* Próximo case dentro da mesma categoria (circular) — null se for o único */
+export const getNextCaseInCategory = (categorySlug, slug) => {
+  const list = getCasesByCategory(categorySlug);
+  if (list.length < 2) return null;
+  const idx = list.findIndex((c) => c.slug === slug);
+  return list[(idx + 1) % list.length];
 };

@@ -1521,11 +1521,25 @@ button {
   flex: 0 0 clamp(280px, 28vw, 380px);
   scroll-snap-align: start;
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
   background: transparent;
   border: 0;
   isolation: isolate;
+}
+
+/* The whole card is the link — bigger hit area than the CTA pill alone */
+.case-card-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  color: inherit;
+  border-radius: var(--r-xl);
+  outline: none;
+}
+
+.case-card-link:focus-visible .case-media {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(131, 223, 233, 0.35);
 }
 
 /* Square media tile — fixed aspect 1:1, identical size for every case */
@@ -1570,13 +1584,12 @@ button {
   opacity: 1;
 }
 
+/* Mockup box: 70% of the tile. The SVG scales to fit inside it (default
+   preserveAspectRatio), so landscape and portrait mockups never overflow. */
 .case-media-inner {
-  position: relative;
+  position: absolute;
+  inset: 15%;
   z-index: 1;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: transform 0.6s var(--ease-swan);
 }
 
@@ -1586,11 +1599,9 @@ button {
 
 .case-media-inner svg {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   filter: drop-shadow(0 24px 50px rgba(0, 0, 0, 0.5));
-  max-width: 70%;
-  max-height: 70%;
 }
 
 .case-tag,
@@ -1614,6 +1625,10 @@ button {
 .case-tag {
   top: 1rem;
   left: 1rem;
+  max-width: calc(100% - 2rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .case-cta {
@@ -1623,6 +1638,21 @@ button {
   align-items: center;
   gap: 0.45rem;
   cursor: pointer;
+  transition: background 0.4s var(--ease-swan), border-color 0.4s ease, color 0.3s ease;
+}
+
+.case-cta svg {
+  transition: transform 0.4s var(--ease-swan);
+}
+
+.case-card:hover .case-cta {
+  background: rgba(131, 223, 233, 0.14);
+  border-color: var(--cyan);
+  color: var(--white);
+}
+
+.case-card:hover .case-cta svg {
+  transform: translate(2px, -2px);
 }
 
 /* Body — text & footer (lives outside the square media tile) */
@@ -3156,10 +3186,11 @@ button {
   isolation: isolate;
 }
 
+/* Sized by its aspect-ratio container (no min-height — it overflowed and
+   clipped the image on narrow columns) */
 .case-image--hero {
   border-radius: var(--r-xl);
   border: 1px solid var(--cyan-line);
-  min-height: 360px;
 }
 
 .case-image-glow {
@@ -3171,19 +3202,22 @@ button {
   z-index: 0;
 }
 
+/* Same fit-inside box as the landing cards (see .case-media-inner) */
 .case-image-inner {
-  position: relative;
+  position: absolute;
+  inset: 15%;
   z-index: 1;
-  width: 70%;
-  max-width: 460px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: transform 0.6s var(--ease-swan);
+}
+
+/* Taller bottom inset keeps a clear band for the watermark */
+.case-image--hero .case-image-inner {
+  inset: 12% 12% 18%;
 }
 
 .case-image-inner svg {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   filter: drop-shadow(0 24px 50px rgba(0, 0, 0, 0.5));
 }
@@ -3272,15 +3306,16 @@ button {
   box-shadow: 0 10px 24px -10px var(--cyan-glow);
 }
 
+/* min(100%, …) keeps a single column from overflowing 320–360px phones */
 .cases-index-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  gap: 2.75rem 1.5rem;
 }
 
+/* No overflow clipping here — it cut the hover lift, shadow and focus ring */
 .cases-index-card {
   border-radius: var(--r-xl);
-  overflow: hidden;
   isolation: isolate;
 }
 
@@ -3291,6 +3326,17 @@ button {
   height: 100%;
   text-decoration: none;
   color: inherit;
+  border-radius: var(--r-xl);
+  outline: none;
+}
+
+.cases-index-card-link:focus-visible .cases-index-card-media {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(131, 223, 233, 0.35);
+}
+
+.cases-index-card-link:hover .case-image-inner {
+  transform: translateY(-3px) scale(1.015);
 }
 
 .cases-index-card-media {
@@ -3326,13 +3372,17 @@ button {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--cyan-line);
+  max-width: calc(100% - 2rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cases-index-card-body {
   padding: 0.25rem 0.5rem 0.5rem;
 }
 
-.cases-index-card-body h2 {
+.cases-index-card-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -4086,6 +4136,10 @@ button {
   .case-aside-sections {
     display: none;
   }
+  /* Its divider goes too — otherwise two dividers stack up */
+  .case-aside-back-group + .case-aside-divider {
+    display: none;
+  }
   .case-metrics {
     grid-template-columns: 1fr;
     gap: 1.25rem;
@@ -4111,5 +4165,287 @@ button {
   .cases-index-card-arrow,
   .case-next-client svg {
     transition: none !important;
+  }
+}
+
+/* "Voltar para" label sits inside the back group, closer to its buttons */
+.case-aside-back-group .case-aside-label {
+  margin-bottom: 0.25rem;
+}
+
+/* ==========================================================================
+   CASES — Category gallery (/cases/:category)
+   ========================================================================== */
+
+.cases-gallery {
+  padding: clamp(7rem, 12vh, 10rem) clamp(1.5rem, 4vw, 3rem) 6rem;
+  max-width: var(--container-wide);
+  margin: 0 auto;
+}
+
+/* ---------- Projects ---------- */
+.cases-gallery-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Page title — same scale as the landing's cases title */
+.cases-gallery-section-head h1 {
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  letter-spacing: -0.028em;
+  margin: 0;
+}
+
+.cases-gallery-count {
+  flex-shrink: 0;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+/* "Seu projeto aqui" — last card of the grid */
+.cases-cta-card-media {
+  display: grid;
+  place-items: center;
+  border-style: dashed;
+  border-color: var(--cyan-line);
+  background:
+    radial-gradient(ellipse at center, rgba(131, 223, 233, 0.12), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+}
+
+.cases-index-card-link:hover .cases-cta-card-media {
+  border-color: var(--cyan);
+}
+
+/* Slow orbit with a glowing dot around the icon */
+.cases-cta-card-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 46%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px dashed rgba(131, 223, 233, 0.22);
+  transform: translate(-50%, -50%);
+  animation: cases-orbit 36s linear infinite;
+  pointer-events: none;
+}
+
+.cases-cta-card-orbit::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+.cases-cta-card-orbit::after {
+  content: '';
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  border: 1px solid rgba(131, 223, 233, 0.08);
+}
+
+@keyframes cases-orbit {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.cases-cta-card-icon {
+  position: relative;
+  z-index: 1;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--cyan);
+  background: rgba(131, 223, 233, 0.08);
+  border: 1px solid var(--cyan-line);
+  box-shadow: 0 0 40px -6px var(--cyan-glow);
+  transition: transform 0.6s var(--ease-swan), background 0.4s ease, border-color 0.4s ease;
+}
+
+.cases-index-card-link:hover .cases-cta-card-icon {
+  transform: rotate(90deg) scale(1.06);
+  background: rgba(131, 223, 233, 0.16);
+  border-color: var(--cyan);
+}
+
+/* Empty gallery — category without published projects yet */
+.cases-gallery-empty {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  padding: clamp(3rem, 7vw, 5rem) clamp(1.5rem, 5vw, 4rem);
+  border: 1px dashed var(--cyan-line);
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(ellipse 60% 70% at 50% 0%, rgba(131, 223, 233, 0.10), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+}
+
+/* Orbit centred on the icon (padding-top + half the icon) */
+.cases-gallery-empty .cases-cta-card-orbit {
+  top: calc(clamp(3rem, 7vw, 5rem) + 32px);
+  width: 104px;
+}
+
+.cases-gallery-empty-icon {
+  margin-bottom: 0.5rem;
+}
+
+.cases-gallery-empty h3 {
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.cases-gallery-empty p {
+  max-width: 54ch;
+  margin: 0;
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+.cases-gallery-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .cases-gallery-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .cases-gallery-empty-actions {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Mockups — looping micro-animations
+   CSS rather than framer-motion so the global reduced-motion rule stops them.
+   ========================================================================== */
+
+/* Expanding halo (CTA buttons) */
+.mk-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mk-ping 2.6s var(--ease-soft) infinite;
+}
+
+@keyframes mk-ping {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.94);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+
+/* Chatbot typing dots */
+.mk-typing circle {
+  animation: mk-typing 1.4s ease-in-out infinite;
+}
+
+.mk-typing circle:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.mk-typing circle:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+@keyframes mk-typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+
+  30% {
+    opacity: 1;
+  }
+}
+
+/* Online status dot */
+.mk-blink {
+  animation: mk-blink 2.4s ease-in-out infinite;
+}
+
+@keyframes mk-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Floating hearts (social post) — hidden at rest */
+.mk-float {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mk-float 3.6s ease-out infinite;
+}
+
+.mk-float--2 {
+  animation-delay: 1.2s;
+}
+
+.mk-float--3 {
+  animation-delay: 2.4s;
+}
+
+@keyframes mk-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+
+  20% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-70px) scale(1.05);
   }
 }

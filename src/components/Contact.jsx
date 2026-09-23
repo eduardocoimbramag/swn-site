@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   FiMail,
@@ -132,24 +133,30 @@ const Contact = () => {
   const [touched, setTouched] = useState({});
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const location = useLocation();
 
-  /* External prefill (e.g. service card click) jumps straight to step 2 */
-  useEffect(() => {
-    return onContactPrefill(({ interest }) => {
-      if (!interest) return;
-      const match = OPTIONS.find(
-        (o) => o.title.toLowerCase() === String(interest).toLowerCase()
-      );
-      if (match) {
-        setSelected(match);
-        setStep(2);
-      } else {
-        /* Unknown interest — still prefill via "Todas as opções" so user can edit */
-        setSelected({ ...OPTIONS[3], title: interest });
-        setStep(2);
-      }
-    });
+  /* External prefill jumps straight to step 2 */
+  const applyInterest = useCallback((interest) => {
+    if (!interest) return;
+    const match = OPTIONS.find(
+      (o) => o.title.toLowerCase() === String(interest).toLowerCase()
+    );
+    /* Unknown interest — still prefill via "Todas as opções" so user can edit */
+    setSelected(match || { ...OPTIONS[3], title: interest });
+    setStep(2);
   }, []);
+
+  /* Same page: e.g. service card click, via the event bridge */
+  useEffect(
+    () => onContactPrefill(({ interest }) => applyInterest(interest)),
+    [applyInterest]
+  );
+
+  /* Another route: e.g. a cases gallery CTA linking to "/#contact" with state */
+  const routedInterest = location.state?.contactInterest;
+  useEffect(() => {
+    applyInterest(routedInterest);
+  }, [routedInterest, applyInterest]);
 
   const selectOption = (opt) => {
     setSelected(opt);

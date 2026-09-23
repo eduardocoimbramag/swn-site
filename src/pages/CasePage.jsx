@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  FiArrowLeft,
   FiArrowUpRight,
   FiArrowRight,
   FiCheck
 } from 'react-icons/fi';
-import { cases, getCaseBySlug, getNextCase } from '../data/cases';
+import {
+  getCaseBySlug,
+  getCasePath,
+  getCasesByCategory,
+  getNextCaseInCategory
+} from '../data/cases';
+import { getCategoryBySlug, getCategoryPath } from '../data/caseCategories';
 import CaseImage from '../components/CaseImage';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
@@ -61,15 +67,21 @@ const SECTIONS = [
 ];
 
 const CasePage = () => {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+  const { category: categorySlug, slug } = useParams();
   const caseData = getCaseBySlug(slug);
-  const nextCase = caseData ? getNextCase(slug) : null;
+  const category = getCategoryBySlug(categorySlug);
+  const isValid = Boolean(
+    caseData && category && caseData.categories.includes(category.slug)
+  );
   const [activeSection, setActiveSection] = useState('overview');
 
-  /* Active section indicator — IntersectionObserver on each block */
+  useDocumentTitle(isValid ? `${caseData.client} · ${category.name}` : null);
+
+  /* Active section indicator — IntersectionObserver on each block.
+     categorySlug in deps: the same case can be opened from another category,
+     which remounts <main> (see key below) with fresh section nodes. */
   useEffect(() => {
-    if (!caseData) return;
+    if (!isValid) return undefined;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -83,14 +95,17 @@ const CasePage = () => {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [caseData]);
+  }, [isValid, caseData, categorySlug]);
 
-  /* Case not found — bail to listing */
-  useEffect(() => {
-    if (!caseData) navigate('/cases', { replace: true });
-  }, [caseData, navigate]);
+  if (!isValid) {
+    /* Unknown case → category gallery (or the index).
+       Category that doesn't list this case → the case's canonical URL. */
+    const fallback = category ? getCategoryPath(category.slug) : '/cases';
+    return <Navigate to={caseData ? getCasePath(caseData) : fallback} replace />;
+  }
 
-  if (!caseData) return null;
+  const siblings = getCasesByCategory(category.slug);
+  const nextCase = getNextCaseInCategory(category.slug, caseData.slug);
 
   const scrollToId = (id) => {
     const el = document.getElementById(id);
@@ -100,19 +115,24 @@ const CasePage = () => {
   return (
     <>
       <Header />
-      <main className="case-page">
+      <main className="case-page" key={`${category.slug}/${caseData.slug}`}>
         <div className="case-page-shell">
           {/* ─── ASIDE — left rail ─── */}
           <aside className="case-aside" aria-label="Navegação dos cases">
-            {/* Back buttons stacked at the top of the aside */}
+            {/* Back buttons: category gallery first, then the cases index */}
             <div className="case-aside-back-group">
-              <Link to="/cases" className="case-aside-back">
+              <span className="case-aside-label">Voltar para</span>
+              <Link
+                to={getCategoryPath(category.slug)}
+                className="case-aside-back"
+                aria-label={`Voltar para ${category.name}`}
+              >
                 <BackArrowAnim />
-                <span>Voltar aos cases</span>
+                <span>{category.name}</span>
               </Link>
-              <Link to="/#portfolio" className="case-aside-back case-aside-back--home">
+              <Link to="/cases" className="case-aside-back case-aside-back--home">
                 <BackArrowAnim />
-                <span>Voltar ao site</span>
+                <span>Todos os cases</span>
               </Link>
             </div>
 
@@ -139,30 +159,34 @@ const CasePage = () => {
               </ul>
             </nav>
 
-            <div className="case-aside-divider" aria-hidden="true" />
-
-            {/* All cases list — centered */}
-            <nav className="case-aside-list" aria-label="Todos os cases">
-              <span className="case-aside-label">Todos os cases</span>
-              <ul>
-                {cases.map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      to={`/cases/${c.slug}`}
-                      className={`case-aside-link ${
-                        c.slug === slug ? 'is-current' : ''
-                      }`}
-                    >
-                      <span className="case-aside-link-bullet" aria-hidden="true" />
-                      <span className="case-aside-link-text">
-                        <strong>{c.client}</strong>
-                        <em>{c.tag}</em>
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            {/* Other cases in this category — hidden when this is the only one */}
+            {siblings.length > 1 && (
+              <>
+                <div className="case-aside-divider" aria-hidden="true" />
+                <nav className="case-aside-list" aria-label={`Projetos de ${category.name}`}>
+                  <span className="case-aside-label">Nesta categoria</span>
+                  <ul>
+                    {siblings.map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          to={getCasePath(c, category.slug)}
+                          className={`case-aside-link ${
+                            c.slug === slug ? 'is-current' : ''
+                          }`}
+                          aria-current={c.slug === slug ? 'page' : undefined}
+                        >
+                          <span className="case-aside-link-bullet" aria-hidden="true" />
+                          <span className="case-aside-link-text">
+                            <strong>{c.client}</strong>
+                            <em>{c.tag}</em>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </>
+            )}
           </aside>
 
           {/* ─── CONTENT — middle column ─── */}
@@ -179,7 +203,12 @@ const CasePage = () => {
               <p className="case-hero-subhead">{caseData.subhead}</p>
 
               <div className="case-hero-image">
-                <CaseImage caseData={caseData} variant="hero" />
+                <CaseImage
+                  accent={caseData.accent}
+                  mockup={caseData.mockup}
+                  watermark={caseData.client}
+                  variant="hero"
+                />
               </div>
             </motion.section>
 
@@ -265,10 +294,10 @@ const CasePage = () => {
               </div>
             </motion.section>
 
-            {/* Next case CTA */}
+            {/* Next case in this category (none when it's the only one) */}
             {nextCase && (
               <motion.section className="case-next" {...fadeUp(0)}>
-                <Link to={`/cases/${nextCase.slug}`} className="case-next-link">
+                <Link to={getCasePath(nextCase, category.slug)} className="case-next-link">
                   <span className="case-next-label">Próximo case</span>
                   <span className="case-next-client">
                     {nextCase.client}

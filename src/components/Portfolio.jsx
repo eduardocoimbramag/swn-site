@@ -2,18 +2,8 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight, FiArrowUpRight } from 'react-icons/fi';
-import { cases } from '../data/cases';
-import {
-  DashboardMockup,
-  MobileMockup,
-  SiteMockup
-} from './svg/PortfolioMockups';
-
-const Mockup = ({ kind }) => {
-  if (kind === 'dashboard') return <DashboardMockup />;
-  if (kind === 'mobile') return <MobileMockup />;
-  return <SiteMockup />;
-};
+import { caseCategories, getCategoryPath } from '../data/caseCategories';
+import { Mockup } from './svg/PortfolioMockups';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
@@ -69,8 +59,8 @@ const Portfolio = () => {
             Beleza que <span className="cyan">gera resultado.</span>
           </h2>
           <p className="cases-subtitle">
-            Uma seleção das experiências digitais que desenhamos e construímos
-            com nossos parceiros.
+            Explore nosso portfólio por especialidade e conheça os projetos que
+            desenhamos e construímos com nossos parceiros.
           </p>
         </motion.div>
 
@@ -93,38 +83,36 @@ const Portfolio = () => {
           className="cases-track"
           role="list"
         >
-          {cases.map((c, i) => (
+          {caseCategories.map((c, i) => (
             <motion.li
-              key={c.id}
+              key={c.slug}
               className="case-card"
               style={{ '--accent': c.accent }}
               initial={{ opacity: 0, y: 32, filter: 'blur(8px)' }}
               whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.9, delay: i * 0.08, ease: swanEase }}
+              transition={{ duration: 0.9, delay: Math.min(i, 3) * 0.08, ease: swanEase }}
             >
-              <div className="case-media">
-                <div className="case-media-glow" aria-hidden="true" />
-                <div className="case-media-inner">
-                  <Mockup kind={c.mockup} />
+              <Link to={getCategoryPath(c.slug)} className="case-card-link">
+                <div className="case-media">
+                  <div className="case-media-glow" aria-hidden="true" />
+                  <div className="case-media-inner" aria-hidden="true">
+                    <Mockup kind={c.mockup} />
+                  </div>
+                  <span className="case-tag">{c.tag}</span>
+                  <span className="case-cta" aria-hidden="true">
+                    Ver projetos
+                    <FiArrowUpRight size={12} />
+                  </span>
                 </div>
-                <span className="case-tag">{c.tag}</span>
-                <Link
-                  to={`/cases/${c.slug}`}
-                  className="case-cta"
-                  aria-label={`Conheça o case ${c.client}`}
-                >
-                  Conheça este case
-                  <FiArrowUpRight size={12} aria-hidden="true" />
-                </Link>
-              </div>
 
-              <div className="case-body">
-                <p className="case-text">
-                  <strong>{c.boldLead}</strong>{' '}
-                  <span className="case-text-mute">{c.cardText}</span>
-                </p>
-              </div>
+                <div className="case-body">
+                  <p className="case-text">
+                    <strong>{c.name}.</strong>{' '}
+                    <span className="case-text-mute">{c.description}</span>
+                  </p>
+                </div>
+              </Link>
             </motion.li>
           ))}
         </ul>
@@ -140,7 +128,7 @@ const Portfolio = () => {
           className="cases-nav-btn"
           onClick={() => scrollByCard(-1)}
           disabled={!canPrev}
-          aria-label="Case anterior"
+          aria-label="Categoria anterior"
         >
           <FiChevronLeft size={20} aria-hidden="true" />
         </button>
@@ -149,7 +137,7 @@ const Portfolio = () => {
           className="cases-nav-btn"
           onClick={() => scrollByCard(1)}
           disabled={!canNext}
-          aria-label="Próximo case"
+          aria-label="Próxima categoria"
         >
           <FiChevronRight size={20} aria-hidden="true" />
         </button>

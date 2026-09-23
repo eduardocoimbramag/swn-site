@@ -1,45 +1,32 @@
 import React from 'react';
-import {
-  DashboardMockup,
-  MobileMockup,
-  SiteMockup
-} from './svg/PortfolioMockups';
+import { Mockup } from './svg/PortfolioMockups';
 
 /**
- * CaseImage — placeholder das imagens de case, preparado para troca por
- * screenshots reais. Hoje renderiza o mockup SVG + accent gradient + nome do
- * cliente em sobreposição sutil. Quando os screenshots chegarem, basta trocar
- * o conteúdo interno por uma <img>.
+ * CaseImage — imagem de capa de cases e categorias, preparada para troca por
+ * screenshots reais. Hoje renderiza o mockup SVG sobre o gradient de destaque
+ * (+ marca d'água discreta no hero). Quando os screenshots chegarem, basta
+ * trocar o conteúdo interno por uma <img>.
  *
  * Props:
- *   caseData — objeto do case (esperando `accent`, `client`, `mockup`)
- *   variant  — 'hero' (grande, página individual) | 'card' (carrossel)
+ *   accent    — gradient CSS de fundo
+ *   mockup    — kind do mockup (ver Mockup em svg/PortfolioMockups.jsx)
+ *   watermark — texto no canto inferior (apenas variant 'hero')
+ *   variant   — 'hero' (grande, topo de página) | 'card' (listagens)
  */
-const Mockup = ({ kind }) => {
-  if (kind === 'dashboard') return <DashboardMockup />;
-  if (kind === 'mobile') return <MobileMockup />;
-  return <SiteMockup />;
-};
-
-const CaseImage = ({ caseData, variant = 'card' }) => {
-  if (!caseData) return null;
-  const { accent, client, mockup } = caseData;
-
-  return (
-    <div
-      className={`case-image case-image--${variant}`}
-      style={{ '--accent': accent }}
-      aria-hidden="true"
-    >
-      <div className="case-image-glow" />
-      <div className="case-image-inner">
-        <Mockup kind={mockup} />
-      </div>
-      {variant === 'hero' && (
-        <span className="case-image-watermark">{client}</span>
-      )}
+const CaseImage = ({ accent, mockup, watermark, variant = 'card' }) => (
+  <div
+    className={`case-image case-image--${variant}`}
+    style={{ '--accent': accent }}
+    aria-hidden="true"
+  >
+    <div className="case-image-glow" />
+    <div className="case-image-inner">
+      <Mockup kind={mockup} />
     </div>
-  );
-};
+    {variant === 'hero' && watermark && (
+      <span className="case-image-watermark">{watermark}</span>
+    )}
+  </div>
+);
 
 export default CaseImage;
