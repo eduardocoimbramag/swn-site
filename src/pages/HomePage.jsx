@@ -17,7 +17,7 @@ const HomePage = () => {
      Framer Motion's useScroll measures its target via useLayoutEffect — under
      BrowserRouter that runs BEFORE the route's layout settles, caching wrong
      offsetTop/scrollHeight. Re-keying <main> tears down + remounts the whole
-     section tree (including SwanScrollDraw) AFTER the router resolved the
+     section tree (including scroll-driven sections) AFTER the router resolved the
      route and ScrollToTop already ran, so the layoutEffect now reads the
      correct measurements. */
   const { key } = useLocation();

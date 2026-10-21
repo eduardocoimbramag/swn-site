@@ -1,3 +1,3 @@
-import SwanScrollDraw from './svg/SwanScrollDraw';
+import SwanRiver from './SwanRiver';
 
-export default SwanScrollDraw;
+export default SwanRiver;

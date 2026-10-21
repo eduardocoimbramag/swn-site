@@ -805,150 +805,118 @@ button {
   transform: translateX(4px);
 }
 
-/* ---------- Swan scroll draw — Cinema Frames (4 atos) ---------- */
-.swan-scroll {
-  height: 220vh;
+/* ---------- Swan river — scroll-drawn scene (draw → still → swim) ---------- */
+.swan-river {
   position: relative;
-  /* No solid background — let the global body::after grid show through.
-     A soft translucent radial adds depth without covering the pattern. */
+  height: 460vh;
+}
+
+.swan-river-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  /* No solid background — the global grid shows through the sky */
   background: radial-gradient(
-    ellipse 90% 70% at 50% 50%,
+    ellipse 90% 70% at 50% 60%,
     rgba(131, 223, 233, 0.04) 0%,
     transparent 70%
   );
 }
 
-.swan-scroll-sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Flash overlay — sits inside the sticky frame so it scrolls with the section */
-.swan-scroll-flash {
+/* Both canvas layers fade at the frame edges so the river never ends on a hard line */
+.swan-river-canvas {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 65% 50%, rgba(131, 223, 233, 0.22), transparent 60%);
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  z-index: 4;
-  mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 10%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 10%, #000 86%, transparent 100%);
 }
 
-/* Inner row that holds the 3 columns (rail | acts | stage), centered */
-.swan-scroll-inner {
-  position: relative;
-  width: 100%;
-  max-width: 1320px;
-  height: 100%;
-  margin: 0 auto;
-  padding: clamp(3rem, 6vh, 5rem) clamp(2rem, 5vw, 5rem);
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.1fr);
-  align-items: stretch;
-  gap: clamp(1.5rem, 3vw, 3rem);
+.swan-river-canvas--front {
   z-index: 2;
 }
 
-/* ----- Progress rail (full-height, left column) ----- */
-.swan-scroll-progress-rail {
-  position: relative;
-  width: 24px;
-  display: flex;
-  justify-content: center;
-}
-
-.swan-scroll-progress-rail::before {
-  content: '';
+/* Swan box — placed in JS from the shared layout. The mask sinks the hull
+   into the water right at the waterline (805/1024 of the viewBox ≈ 78.6%). */
+.swan-river-swan {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  margin-left: -1px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 1px;
-}
-
-.swan-scroll-progress-fill {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 2px;
-  margin-left: -1px;
-  height: 100%;
-  background: linear-gradient(180deg, var(--cyan) 0%, rgba(131, 223, 233, 0.4) 100%);
-  box-shadow: 0 0 18px var(--cyan-glow);
-  transform-origin: top;
-  border-radius: 1px;
-}
-
-.swan-scroll-progress-marker {
-  position: absolute;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(10, 13, 15, 1);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: border-color 0.5s var(--ease-swan), background 0.5s ease, box-shadow 0.5s ease;
   z-index: 1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 77.4%, transparent 79.2%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 77.4%, transparent 79.2%);
 }
 
-.swan-scroll-progress-marker.is-reached {
-  background: var(--cyan);
-  border-color: var(--cyan);
-  box-shadow: 0 0 14px var(--cyan-glow);
+/* Swim pose pivots on the waterline, so the hull stays seated in the water */
+.swan-river-swan-body {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 78.6%;
+  will-change: transform;
 }
 
-/* ----- Acts column (middle) — stacked vertically, all visible after reveal ----- */
-.swan-scroll-acts {
-  position: relative;
+.swan-river-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ----- Acts — carried in by the wind, centered above the swan ----- */
+.swan-river-acts {
+  position: absolute;
+  top: var(--river-text-y, 22%);
+  left: 0;
+  right: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.swan-river-act {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(100% - 2rem, 760px);
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  gap: clamp(1rem, 2vh, 1.75rem);
-  align-self: stretch;
-  min-width: 0;
-}
-
-.swan-scroll-act {
-  display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0.55rem;
-  text-align: left;
-  min-width: 0;
-  /* Initial hidden state — slight upward offset for premium reveal */
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.7s var(--ease-swan), transform 0.7s var(--ease-swan);
+  text-align: center;
 }
 
-.swan-scroll-act.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.swan-scroll-act-word {
+.swan-river-act-word {
   font-family: 'Sora', sans-serif;
   font-weight: 800;
   font-size: clamp(2rem, 3.6vw, 3.4rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
   margin: 0;
-  background: linear-gradient(180deg, #ffffff 0%, var(--cyan) 100%);
+  white-space: nowrap;
+}
+
+/* Each glyph carries its own gradient so it can travel on its own.
+   The padding keeps descenders inside the clipped background. */
+.swan-river-char {
+  display: inline-block;
+  padding: 0.1em 0 0.16em;
+  margin: -0.1em 0 -0.16em;
+  background: linear-gradient(180deg, #ffffff 8%, var(--cyan) 87%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  opacity: 0;
 }
 
-.swan-scroll-act-caption {
+.swan-river-act-caption {
   font-family: 'Sora', sans-serif;
   font-size: clamp(0.9rem, 1vw, 1rem);
   font-weight: 400;
@@ -957,165 +925,147 @@ button {
   letter-spacing: -0.005em;
   max-width: 36ch;
   margin: 0;
+  opacity: 0;
 }
 
-/* ----- Stage (right column) ----- */
-.swan-scroll-stage {
-  position: relative;
-  width: 100%;
-  /* Keeps the stage square inside the column */
-  aspect-ratio: 1 / 1;
-  max-width: min(60vh, 600px);
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-}
-
-.swan-scroll-halo {
+.swan-river-sr {
   position: absolute;
-  inset: -15%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(131, 223, 233, 0.45), transparent 55%),
-    radial-gradient(circle at 50% 50%, rgba(131, 223, 233, 0.18), transparent 75%);
-  filter: blur(32px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.swan-scroll-pulse-ring {
-  position: absolute;
-  inset: 4%;
-  border-radius: 50%;
-  border: 1.5px solid var(--cyan);
-  pointer-events: none;
-  box-shadow: 0 0 60px var(--cyan-glow);
-  z-index: 2;
-}
-
-.swan-scroll-svg {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: block;
-  overflow: visible;
-  z-index: 1;
-}
-
-/* ----- Reduced motion ----- */
-.swan-scroll--reduced {
-  height: auto;
-  padding: 6rem 1.5rem;
-}
-
-.swan-scroll-sticky--reduced {
-  position: relative;
-  height: auto;
-  top: auto;
-  display: block;
-}
-
-.swan-scroll--reduced .swan-scroll-inner {
+  width: 1px;
+  height: 1px;
   padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.swan-scroll-act--static {
-  text-align: center;
-  align-items: center;
+/* ----- Progress rail — texts only: first and last act sit on the ends,
+   and the rail fades in once the texts take the stage ----- */
+.swan-river-progress {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 4vh, 2.25rem);
+  z-index: 3;
+  width: min(240px, 52vw);
+  height: 10px;
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  transition: opacity 0.8s var(--ease-swan), transform 0.8s var(--ease-swan);
+  pointer-events: none;
+}
+
+.swan-river-progress.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.swan-river-progress::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  margin-top: -1px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 1px;
+}
+
+.swan-river-progress-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  margin-top: -1px;
+  background: linear-gradient(90deg, rgba(131, 223, 233, 0.4) 0%, var(--cyan) 100%);
+  box-shadow: 0 0 18px var(--cyan-glow);
+  border-radius: 1px;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.swan-river-progress-marker {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(10, 13, 15, 1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: border-color 0.5s var(--ease-swan), background 0.5s ease, box-shadow 0.5s ease;
+}
+
+.swan-river-progress-marker.is-reached {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px var(--cyan-glow);
+}
+
+/* ----- Reduced motion — one calm frame, acts listed below ----- */
+.swan-river--static {
+  height: auto;
+  padding-bottom: clamp(4rem, 8vh, 6rem);
+}
+
+.swan-river--static .swan-river-sticky {
+  position: relative;
+  height: clamp(520px, 86vh, 860px);
+}
+
+.swan-river-acts--static {
+  position: relative;
+  top: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 5rem);
+}
+
+.swan-river-acts--static .swan-river-act {
+  position: static;
+  width: auto;
+  transform: none;
+}
+
+.swan-river-acts--static .swan-river-char,
+.swan-river-acts--static .swan-river-act-caption {
+  opacity: 1;
 }
 
 /* ----- Responsive ----- */
-/* Tablet — keep the scroll-locked effect but lighten paddings & fonts */
 @media (max-width: 1280px) and (min-width: 1025px) {
-  .swan-scroll {
-    height: 200vh;
+  .swan-river {
+    height: 440vh;
   }
 
-  .swan-scroll-inner {
-    padding: clamp(3rem, 6vh, 5rem) 2rem;
-    gap: 2rem;
-    grid-template-columns: 18px minmax(0, 1fr) minmax(0, 1fr);
-  }
-
-  .swan-scroll-progress-rail {
-    width: 18px;
-  }
-
-  .swan-scroll-act-word {
+  .swan-river-act-word {
     font-size: clamp(1.8rem, 3.2vw, 2.8rem);
-  }
-
-  .swan-scroll-stage {
-    max-width: min(55vh, 480px);
   }
 }
 
-/* Mobile — drop the sticky scroll-driven effect, render as a static composition */
 @media (max-width: 1024px) {
-  .swan-scroll {
-    height: auto;
+  .swan-river {
+    height: 420vh;
   }
 
-  .swan-scroll-sticky {
-    position: relative;
-    height: auto;
-    top: auto;
-    overflow: visible;
-    padding: clamp(4rem, 8vh, 6rem) 0;
-  }
-
-  .swan-scroll-inner {
-    grid-template-columns: 1fr;
-    height: auto;
-    gap: 3rem;
-    padding: 0 1.5rem;
-  }
-
-  /* Hide rail entirely on mobile — no scroll-driven progress to show */
-  .swan-scroll-progress-rail {
-    display: none;
-  }
-
-  .swan-scroll-acts {
-    flex-direction: column;
-    gap: 2.5rem;
-    order: 2;
-  }
-
-  .swan-scroll-act {
-    opacity: 1 !important;
-    transform: none !important;
-    align-items: center;
-    text-align: center;
-  }
-
-  .swan-scroll-act-word {
+  .swan-river-act-word {
     font-size: clamp(2.4rem, 9vw, 3.4rem);
   }
 
-  .swan-scroll-act-caption {
-    margin-left: auto;
-    margin-right: auto;
+  .swan-river-acts--static {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .swan-scroll-stage {
-    width: min(80vw, 420px);
-    max-width: none;
-    order: 1;
-    margin: 0 auto;
-  }
-
-  /* Hide pulse ring & flash on mobile (no scroll-driven climax) */
-  .swan-scroll-pulse-ring,
-  .swan-scroll-flash {
-    display: none;
-  }
-
-  /* Mobile: force the swan to render fully drawn + filled, no scroll dependency */
-  .swan-scroll-svg path {
-    stroke-dasharray: none !important;
-    stroke-dashoffset: 0 !important;
-    opacity: 1 !important;
+@media (max-width: 560px) {
+  .swan-river-acts--static {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -2502,10 +2452,6 @@ button {
   .process-num text {
     font-size: 76px;
     letter-spacing: -3px;
-  }
-
-  .swan-scroll {
-    height: 200vh;
   }
 
   .footer-top {
