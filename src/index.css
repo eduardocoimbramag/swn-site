@@ -656,155 +656,6 @@ button {
   flex-wrap: wrap;
 }
 
-/* ---------- About ---------- */
-.about {
-  padding: 8rem 1.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.about-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 5rem;
-  align-items: center;
-  max-width: var(--container);
-  margin: 0 auto;
-}
-
-/* Prevents the title's intrinsic width from forcing the text column to overflow */
-.about-text {
-  min-width: 0;
-}
-
-.about-text .section-title {
-  margin-top: 0;
-  /* Smaller upper bound so it never overflows the narrower text column */
-  font-size: clamp(2rem, 3.6vw + 0.4rem, 3.4rem);
-  word-break: break-word;
-}
-
-.about-text p {
-  font-size: 1.1rem;
-  color: var(--text-soft);
-  line-height: 1.75;
-  margin-bottom: 2.5rem;
-  max-width: 560px;
-}
-
-.about-pillars {
-  display: grid;
-  gap: 0.85rem;
-  max-width: 560px;
-}
-
-.pillar {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.1rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  transition: border-color 0.4s var(--ease-swan), background 0.3s ease, transform 0.4s var(--ease-swan);
-}
-
-.pillar:hover {
-  border-color: var(--cyan-line);
-  background: var(--surface-hover);
-  transform: translateX(4px);
-}
-
-.pillar-icon {
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: rgba(131, 223, 233, 0.06);
-  border: 1px solid var(--cyan-line);
-  display: grid;
-  place-items: center;
-  color: var(--cyan);
-  transition: background 0.4s var(--ease-swan), border-color 0.4s var(--ease-swan);
-}
-
-.pillar:hover .pillar-icon,
-.pillar--active .pillar-icon {
-  background: rgba(131, 223, 233, 0.12);
-  border-color: var(--cyan);
-}
-
-.pillar h3 {
-  font-size: 1.05rem;
-  margin-bottom: 0.25rem;
-  font-weight: 600;
-}
-
-.pillar p {
-  font-size: 0.92rem;
-  color: var(--text-soft);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.about-visual {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 560px;
-}
-
-.orbital-wrap {
-  position: relative;
-  display: grid;
-  place-items: center;
-  /* Inline width/height (set by JS) is the desktop target,
-     but never overflow the column on smaller viewports. */
-  max-width: 100%;
-  aspect-ratio: 1 / 1;
-}
-
-.orbital-tooltip {
-  position: absolute;
-  bottom: -1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--r-md);
-  background: rgba(10, 13, 15, 0.92);
-  border: 1px solid var(--cyan-line);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 30px -14px rgba(131, 223, 233, 0.5);
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 2;
-}
-
-.orbital-tooltip-title {
-  font-family: 'Sora', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--cyan);
-  letter-spacing: 0.02em;
-}
-
-.orbital-tooltip-text {
-  font-size: 0.78rem;
-  color: var(--text-soft);
-  white-space: normal;
-  max-width: 240px;
-  line-height: 1.4;
-}
-
-.pillar--active {
-  border-color: var(--cyan-line);
-  background: var(--surface-hover);
-  transform: translateX(4px);
-}
-
 /* ---------- Swan river — scroll-drawn scene (draw → still → swim) ---------- */
 .swan-river {
   position: relative;
@@ -2847,40 +2698,7 @@ button {
 
 /* ---------- Responsive ---------- */
 
-/* About — narrow desktop range (1080p @ 125% / @ 150%):
-   Tighter grid + smaller orb so the text column has real breathing room. */
-@media (max-width: 1279px) and (min-width: 1025px) {
-  .about-grid {
-    grid-template-columns: 1fr 0.75fr;
-    gap: 3rem;
-  }
-
-  .about-visual {
-    min-height: 440px;
-  }
-
-  .orbital-wrap {
-    width: min(100%, 440px) !important;
-    height: auto !important;
-  }
-}
-
 @media (max-width: 1024px) {
-  .about-grid {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    text-align: left;
-  }
-
-  .about-visual {
-    min-height: 380px;
-  }
-
-  .orbital-wrap {
-    width: min(100%, 440px) !important;
-    height: auto !important;
-  }
-
   .process-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2955,10 +2773,6 @@ button {
 
   .hero-scroll-hint-label {
     display: none;
-  }
-
-  .about {
-    padding: 6rem 1.25rem;
   }
 
   .services,

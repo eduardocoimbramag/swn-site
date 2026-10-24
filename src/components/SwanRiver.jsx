@@ -668,6 +668,7 @@ const SwanRiver = () => {
 
   return (
     <section
+      id="about"
       ref={sectionRef}
       className={`swan-river ${reduced ? 'swan-river--static' : ''}`}
       aria-label="A marca SWN: o cisne desenhado sobre o rio"

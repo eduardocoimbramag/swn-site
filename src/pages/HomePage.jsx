@@ -2,7 +2,6 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
-import About from '../components/About';
 import LogoParallax from '../components/LogoParallax';
 import Services from '../components/Services';
 import Team from '../components/Team';
@@ -28,7 +27,6 @@ const HomePage = () => {
       <Header />
       <main key={key}>
         <Hero />
-        <About />
         <WaveDivider />
         <LogoParallax />
         <Services />
