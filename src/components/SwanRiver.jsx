@@ -32,11 +32,6 @@ const ACTS = [
   },
   {
     num: '03',
-    word: 'Identidade',
-    caption: 'Cada curva carrega uma decisão de design.'
-  },
-  {
-    num: '04',
     word: 'Marca',
     caption: 'Quando tudo se alinha, o cisne é SWN.'
   }
@@ -50,7 +45,7 @@ const TIMELINE = {
   stroke: [0.03, 0.21],
   fill: [0.16, 0.25],
   reflection: [0.2, 0.3],
-  acts: [0.37, 0.53, 0.69, 0.85] // pontos da barra: cada um é uma parada do scroll
+  acts: [0.37, 0.61, 0.85] // pontos da barra: cada um é uma parada do scroll
 };
 
 /* O SWAN_PATH tem 5 subpaths; cada um vira uma "caneta" com sua janela no

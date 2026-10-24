@@ -116,13 +116,6 @@ const WORD = {
     transition: { duration: 0.85, delay: 0.06 + i * 0.055, ease: swanEase }
   })
 };
-const MARK = {
-  hidden: { backgroundSize: '0% 100%' },
-  show: (i) => ({
-    backgroundSize: '100% 100%',
-    transition: { duration: 0.8, delay: 0.32 + i * 0.055, ease: [0.65, 0, 0.35, 1] }
-  })
-};
 const FADE = {
   hidden: { opacity: 0, y: 14, filter: 'blur(6px)' },
   show: (delay = 0) => ({
@@ -157,7 +150,6 @@ const Headline = ({ segments, animated = false }) => {
   return (
     <p className="team-headline">
       {segments.map((seg, si) => {
-        const first = index;
         const words = seg.text.trim().split(/\s+/);
         const content = words.flatMap((w, wi) => (wi ? [' ', word(w, wi)] : [word(w, wi)]));
         const spacer = si < segments.length - 1 ? ' ' : null;
@@ -172,9 +164,7 @@ const Headline = ({ segments, animated = false }) => {
         return (
           <React.Fragment key={si}>
             {animated ? (
-              <motion.span className="team-mark" variants={MARK} custom={first}>
-                {content}
-              </motion.span>
+              <span className="team-mark">{content}</span>
             ) : (
               <span className="team-mark">{content}</span>
             )}
@@ -360,22 +350,12 @@ const Team = () => {
         id="team"
         ref={sectionRef}
         className="team"
-        aria-labelledby={`${uid}-title`}
+        aria-label="Equipe"
         onFocus={onFocus}
         onBlur={onBlur}
       >
         <div className="team-grid">
           <div className="team-copy">
-            <motion.h2
-              id={`${uid}-title`}
-              className="eyebrow team-eyebrow"
-              variants={FADE}
-              custom={0}
-              initial="hidden"
-              animate={revealed ? 'show' : 'hidden'}
-            >
-              Nosso time
-            </motion.h2>
 
             {/* as cópias fantasmas reservam a altura da maior copy: nada pula
                 quando o texto troca */}

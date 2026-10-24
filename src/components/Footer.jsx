@@ -42,7 +42,7 @@ const Footer = () => {
             <h4>Estúdio</h4>
             <ul>
               <li><a {...section('about')}>Sobre</a></li>
-              <li><a {...section('team')}>Nosso time</a></li>
+              <li><a {...section('team')}>Equipe</a></li>
               <li><a {...section('process')}>Processo</a></li>
               <li><a {...section('portfolio')}>Cases</a></li>
               <li><a {...section('testimonials')}>Depoimentos</a></li>

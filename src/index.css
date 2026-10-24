@@ -1295,10 +1295,6 @@ button {
   min-width: 0;
 }
 
-.team-eyebrow {
-  margin: 0 0 1.75rem;
-}
-
 /* Every copy variant sits in the same grid cell: the ghosts reserve the
    tallest height so the layout never jumps when the text swaps */
 .team-copy-stack,
@@ -1332,19 +1328,18 @@ button {
   display: inline-block;
 }
 
-/* Highlighter — a cyan block wipes in under the key phrase; its dark ink is
-   lost in the page until the block passes behind it */
-.team-mark {
-  color: var(--bg);
-  background-image: linear-gradient(var(--cyan), var(--cyan));
-  background-repeat: no-repeat;
-  background-position: 0 50%;
-  background-size: 0% 100%;
-  padding: 0 0.1em;
-  margin: 0 -0.02em;
-  border-radius: 0.06em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+/* Key phrase — same type as the hero's "Onde a beleza": Sora 800 with the
+   white → cyan gradient. Each word carries its own gradient (they animate
+   individually); the padding keeps descenders inside the clipped fill. */
+.team-mark .team-word {
+  font-weight: 800;
+  padding: 0.08em 0 0.14em;
+  margin: -0.08em 0 -0.14em;
+  background: linear-gradient(180deg, #ffffff 0%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .team-lead {
