@@ -8,6 +8,7 @@ const NAV = [
   { id: 'hero', label: 'Início' },
   { id: 'about', label: 'Sobre' },
   { id: 'services', label: 'Serviços' },
+  { id: 'team', label: 'Nosso time' },
   { id: 'process', label: 'Processo' },
   /* Off the home page, "Cases" opens the /cases index instead of the landing section */
   { id: 'portfolio', label: 'Cases', route: '/cases' },

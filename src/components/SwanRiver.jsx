@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { SWAN_PATH } from './svg/BrandSwan';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
-import { RiverScene, clamp01, lerp, segment, smoothstep } from '../lib/riverScene';
+import { RiverScene, clamp01, segment, smoothstep } from '../lib/riverScene';
 
 /**
  * SwanRiver — o cisne desenhado pelo scroll, agora nadando num rio.
@@ -9,10 +9,11 @@ import { RiverScene, clamp01, lerp, segment, smoothstep } from '../lib/riverScen
  * Três tempos, guiados pelo progresso da seção (fixa na tela via sticky):
  *   1. Desenho  — horizonte, água e cisne são traçados conforme o scroll.
  *   2. Calmaria — a cena estabiliza: o reflexo surge e a água só respira.
- *   3. Nado     — cada novo arrasto do scroll chama o próximo texto: o vento
- *                 sobe, a água agita e o cisne rema sem sair do centro; o
- *                 texto atual é levado e só então o próximo chega da direita.
- *                 Quando a palavra assenta, o cisne desacelera e a água acalma.
+ *   3. Nado     — a barra avança com o scroll; ao encostar em cada ponto o
+ *                 scroll para e a troca acontece: o vento sobe, o texto atual
+ *                 é levado, o próximo chega da direita, o cisne rema sem sair
+ *                 do centro e, quando a palavra assenta, desacelera. Só então
+ *                 o scroll é liberado.
  *
  * Tudo roda num único requestAnimationFrame imperativo (canvas + estilos
  * escritos direto no DOM) — nenhum re-render do React por frame.
@@ -49,7 +50,7 @@ const TIMELINE = {
   stroke: [0.03, 0.21],
   fill: [0.16, 0.25],
   reflection: [0.2, 0.3],
-  acts: [0.37, 0.53, 0.69, 0.85] // a partir de cada ponto, o scroll pede o texto seguinte
+  acts: [0.37, 0.53, 0.69, 0.85] // pontos da barra: cada um é uma parada do scroll
 };
 
 /* O SWAN_PATH tem 5 subpaths; cada um vira uma "caneta" com sua janela no
@@ -77,9 +78,16 @@ const STAGGER_OUT = 0.35;  // na saída a rajada leva a palavra mais junta
    com inércia quando a palavra assenta no centro. */
 const SWIM_SETTLE = 0.12;  // deslize suave com um texto em cena
 const SWIM_ACCEL = 4.6;    // ω da mola ao acelerar (~0,9s)
-const SWIM_DECEL = 1.8;    // ω ao desacelerar (~2,5s)
+const SWIM_DECEL = 2.4;    // ω ao desacelerar (~1,5s de inércia)
 const WIND_TO_ENTER = 0.3; // da calmaria, o texto só parte quando o vento pegou
 const WIND_TO_EXIT = 0.22; // a rajada chega antes de levar a palavra
+const LANDED = 0.85;       // progresso em que a palavra já assentou aos olhos
+
+/* Parada em cada ponto: o scroll só volta a andar depois que o cisne
+   desacelerou (nado ≤ RELEASE_SWIM). LOCK_MAX_S é a válvula de segurança. */
+const RELEASE_SWIM = SWIM_SETTLE + 0.12;
+const LOCK_MAX_S = 7;
+const SCROLL_KEYS = new Set([' ', 'Spacebar', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End']);
 
 const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
 const easeInExit = (t) => Math.pow(t, 2.2);
@@ -91,6 +99,25 @@ const wantedAct = (p) => {
     if (p >= at) want = i;
   });
   return want;
+};
+
+/* Posição da barra (em índices de ponto) para um progresso de scroll */
+const railPosition = (p) => {
+  const T = TIMELINE.acts;
+  if (p <= T[0]) return 0;
+  for (let i = 0; i < T.length - 1; i++) {
+    if (p < T[i + 1]) return i + (p - T[i]) / (T[i + 1] - T[i]);
+  }
+  return T.length - 1;
+};
+
+/* Pula para uma posição sem a rolagem suave global (html { scroll-behavior }) */
+const jumpTo = (y) => {
+  const root = document.documentElement;
+  const prev = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+  window.scrollTo(0, y);
+  root.style.scrollBehavior = prev;
 };
 
 /* Leva o ato até o alvo (0 fora à direita · 1 centro · 2 fora à esquerda) em
@@ -245,9 +272,9 @@ const SwanRiver = () => {
     let swim = 0;       // intensidade do nado/vento (mola)
     let swimVel = 0;
     let lastFill = -1;
-    let barFill = 0;    // posição da barra, em índices de texto
     let barVisible = false;
     const barLit = ACTS.map(() => false);
+    const barActive = ACTS.map(() => false);
     let t = 0;
 
     /* ---------- Diretor de cena: um único texto no palco por vez ----------
@@ -260,7 +287,8 @@ const SwanRiver = () => {
       exitTo: 2,       // para onde o texto atual está saindo
       last: -1,        // último texto que saiu do palco…
       lastExitTo: 2,   // …e por qual lado
-      shown: -1        // último texto que assentou no centro
+      shown: -1,       // último texto que assentou no centro
+      landed: false    // a palavra em cena já assentou (o cisne pode desacelerar)
     };
 
     const direct = (want, dt) => {
@@ -271,23 +299,30 @@ const SwanRiver = () => {
           want === stage.last ? stage.lastExitTo : want > stage.last ? 0 : 2;
         stage.cur = want;
         stage.phase = 'enter';
+        stage.landed = false;
       }
 
       const act = acts[stage.cur];
       if ((stage.phase === 'enter' || stage.phase === 'shown') && want !== stage.cur) {
         stage.phase = 'exit';
         stage.exitTo = want > stage.cur ? 2 : 0;
+        stage.landed = false;
       } else if (stage.phase === 'exit' && want === stage.cur) {
         stage.phase = 'enter'; // voltou atrás no meio da saída: o texto retorna
       }
 
       if (stage.phase === 'enter') {
         if ((act.a === 0 || act.a === 2) && swim < WIND_TO_ENTER) return;
-        if (moveAct(act, 1, dt)) {
-          stage.phase = 'shown';
-          stage.shown = stage.cur;
+        const arrived = moveAct(act, 1, dt);
+        /* pousou: pulso na água e o cisne começa a desacelerar */
+        if (!stage.landed && Math.abs(act.a - 1) <= 1 - LANDED) {
+          stage.landed = true;
           const final = stage.cur === ACTS.length - 1;
           scene.pulse(final ? 1.3 : 0.85, final);
+        }
+        if (arrived) {
+          stage.phase = 'shown';
+          stage.shown = stage.cur;
         }
       } else if (stage.phase === 'exit') {
         if (act.a === 1 && swim < WIND_TO_EXIT) return;
@@ -301,36 +336,142 @@ const SwanRiver = () => {
       }
     };
 
-    /* Barra: exclusiva dos textos — um ponto em cada extremidade e o
-       preenchimento caminha de um ponto ao outro junto com a chegada. */
-    const renderRail = (dt) => {
-      const base = Math.max(0, stage.shown);
-      let target = base;
-      if (stage.phase === 'enter') {
-        const a = acts[stage.cur].a;
-        target = lerp(base, stage.cur, easeOutQuart(a <= 1 ? a : 2 - a));
+    const readProgress = () => {
+      const top = section.getBoundingClientRect().top;
+      return Math.max(-0.3, Math.min(1, -top / range));
+    };
+
+    /* ---------- Paradas do scroll ----------
+       A barra anda com o scroll; ao encostar num ponto o scroll trava ali,
+       a troca acontece (sai o texto, o cisne acelera, entra o próximo, o
+       cisne desacelera) e só então o scroll volta a andar. Um scroll rápido
+       nunca pula pontos: para sempre no primeiro que cruzar. */
+    let request = -1; // texto que o scroll já pediu (sincronizado após medir)
+    const lock = { active: false, at: 0, y: 0, since: 0 };
+    let lastScrollY = window.scrollY;
+    let navigating = false; // clique em link/botão: rolagem programática, sem paradas
+    let navTimer = 0;
+
+    const blockInput = (e) => {
+      if (e.cancelable) e.preventDefault();
+    };
+    const blockKeys = (e) => {
+      if (!SCROLL_KEYS.has(e.key)) return;
+      const el = e.target;
+      if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+      e.preventDefault();
+    };
+    const lockInput = (on) => {
+      const method = on ? 'addEventListener' : 'removeEventListener';
+      window[method]('wheel', blockInput, { passive: false });
+      window[method]('touchmove', blockInput, { passive: false });
+      window[method]('keydown', blockKeys);
+    };
+
+    const lockYFor = (at) =>
+      window.scrollY + section.getBoundingClientRect().top + at * range;
+
+    const engage = (at) => {
+      lock.active = true;
+      lock.at = at;
+      lock.since = t;
+      lock.y = lockYFor(at);
+      lockInput(true);
+      jumpTo(lock.y);
+    };
+
+    const release = () => {
+      if (!lock.active) return;
+      lock.active = false;
+      lockInput(false);
+    };
+
+    const STOP_PAD = 2; // px além do ponto: imune a arredondamento do scrollTo
+
+    const onScroll = () => {
+      if (navigating) {
+        /* a rolagem programática continua: segue sem paradas até ela parar */
+        clearTimeout(navTimer);
+        navTimer = setTimeout(() => {
+          navigating = false;
+        }, 250);
       }
-      barFill += (target - barFill) * (1 - Math.exp(-dt * 10));
-      railFillRef.current.style.transform = `scaleX(${(barFill / (ACTS.length - 1)).toFixed(4)})`;
+
+      const y = window.scrollY;
+      const jump = Math.abs(y - lastScrollY) > window.innerHeight * 0.9;
+      lastScrollY = y;
+
+      if (lock.active) {
+        /* a cena está fixa na tela: devolver o scroll ao ponto é invisível */
+        if (Math.abs(y - lock.y) > 1) jumpTo(lock.y);
+        lastScrollY = lock.y;
+        return;
+      }
+
+      const want = wantedAct(readProgress());
+      if (want === request) return;
+      if (navigating || jump) {
+        request = want; // navegação ou restauração de posição: sem paradas
+        return;
+      }
+      /* cruzou um ponto rolando: avança (ou volta) um texto e trava no ponto */
+      const T = TIMELINE.acts;
+      if (want > request) {
+        request += 1;
+        engage(T[request] + STOP_PAD / range);
+      } else {
+        engage(T[request] - STOP_PAD / range); // logo antes do ponto que ficou para trás
+        request -= 1;
+      }
+    };
+
+    /* roda, toque ou tecla de rolagem: é o usuário rolando, não navegação */
+    const onUserScrollIntent = (e) => {
+      if (e.type !== 'keydown' || SCROLL_KEYS.has(e.key)) navigating = false;
+    };
+    const onClick = (e) => {
+      if (!e.target.closest?.('a[href], button')) return;
+      navigating = true;
+      release();
+      clearTimeout(navTimer);
+      navTimer = setTimeout(() => {
+        navigating = false;
+      }, 600);
+    };
+
+    const updateLock = () => {
+      if (!lock.active) return;
+      const settled =
+        request < 0
+          ? stage.phase === 'idle' && swim < 0.06
+          : stage.phase === 'shown' && stage.cur === request && swim <= RELEASE_SWIM;
+      if (settled || t - lock.since > LOCK_MAX_S) release();
+    };
+
+    /* Barra: exclusiva dos textos — um ponto em cada extremidade; o
+       preenchimento segue o scroll e o ponto em troca pulsa até liberar. */
+    const renderRail = () => {
+      const pos = lock.active ? railPosition(lock.at) : railPosition(p);
+      railFillRef.current.style.transform = `scaleX(${(pos / (ACTS.length - 1)).toFixed(4)})`;
 
       ACTS.forEach((_, i) => {
-        const lit = stage.shown >= 0 && barFill >= i - 0.02;
+        const lit = request >= i;
         if (lit !== barLit[i]) {
           barLit[i] = lit;
           markerRefs.current[i]?.classList.toggle('is-reached', lit);
         }
+        const active = lock.active && request === i;
+        if (active !== barActive[i]) {
+          barActive[i] = active;
+          markerRefs.current[i]?.classList.toggle('is-active', active);
+        }
       });
 
-      const visible = stage.cur >= 0 || stage.shown >= 0;
+      const visible = request >= 0 || stage.cur >= 0;
       if (visible !== barVisible) {
         barVisible = visible;
         railRef.current?.classList.toggle('is-visible', visible);
       }
-    };
-
-    const readProgress = () => {
-      const top = section.getBoundingClientRect().top;
-      return Math.max(-0.3, Math.min(1, -top / range));
     };
 
     const renderActs = (dt, I) => {
@@ -408,10 +549,10 @@ const SwanRiver = () => {
       scrollSpeed += (Math.abs(raw - rawPrev) / dt - scrollSpeed) * (1 - Math.exp(-dt * 4));
       rawPrev = raw;
 
-      direct(wantedAct(p), dt);
+      direct(request, dt);
 
       /* mola criticamente amortecida: acelera rápido, desacelera com inércia */
-      const busy = stage.phase === 'enter' || stage.phase === 'exit';
+      const busy = stage.phase === 'exit' || (stage.phase === 'enter' && !stage.landed);
       const swimTarget = busy ? 1 : stage.shown >= 0 ? SWIM_SETTLE : 0;
       const w = swimTarget > swim ? SWIM_ACCEL : SWIM_DECEL;
       swimVel += (w * w * (swimTarget - swim) - 2 * w * swimVel) * dt;
@@ -439,7 +580,8 @@ const SwanRiver = () => {
       swanBodyRef.current.style.transform =
         `translate3d(${pose.x.toFixed(2)}px, ${pose.y.toFixed(2)}px, 0) rotate(${pose.rot.toFixed(3)}deg) skewX(${pose.skew.toFixed(3)}deg)`;
 
-      renderRail(dt);
+      updateLock();
+      renderRail();
       renderActs(dt, I);
     };
 
@@ -463,6 +605,8 @@ const SwanRiver = () => {
     };
 
     measure();
+    request = wantedAct(readProgress());
+    lastScrollY = window.scrollY;
     if (L) tick(1 / 60);
 
     const io = new IntersectionObserver(
@@ -471,14 +615,33 @@ const SwanRiver = () => {
     );
     io.observe(section);
 
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => {
+      measure();
+      if (lock.active) {
+        lock.y = lockYFor(lock.at);
+        jumpTo(lock.y);
+      }
+    });
     ro.observe(sticky);
     ro.observe(section);
 
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('wheel', onUserScrollIntent, { passive: true });
+    window.addEventListener('touchstart', onUserScrollIntent, { passive: true });
+    window.addEventListener('keydown', onUserScrollIntent);
+    document.addEventListener('click', onClick, true);
+
     return () => {
       stop();
+      release();
+      clearTimeout(navTimer);
       io.disconnect();
       ro.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('wheel', onUserScrollIntent);
+      window.removeEventListener('touchstart', onUserScrollIntent);
+      window.removeEventListener('keydown', onUserScrollIntent);
+      document.removeEventListener('click', onClick, true);
     };
   }, [reduced]);
 

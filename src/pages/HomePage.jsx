@@ -5,6 +5,7 @@ import Hero from '../components/Hero';
 import About from '../components/About';
 import LogoParallax from '../components/LogoParallax';
 import Services from '../components/Services';
+import Team from '../components/Team';
 import Process from '../components/Process';
 import Portfolio from '../components/Portfolio';
 import Testimonials from '../components/Testimonials';
@@ -31,6 +32,7 @@ const HomePage = () => {
         <WaveDivider />
         <LogoParallax />
         <Services />
+        <Team />
         <WaveDivider flip />
         <Process />
         <Portfolio />
