@@ -567,75 +567,6 @@ button {
   pointer-events: none;
 }
 
-/* Horizon — a thin arc of light near the base: the night sky ends where the
-   river of the next section begins. It opens from the centre on load. */
-.hero-horizon {
-  position: absolute;
-  left: 50%;
-  top: 85%;
-  width: max(140%, 1100px);
-  height: 140%;
-  border-radius: 50%;
-  border-top: 1px solid rgba(131, 223, 233, 0.55);
-  background:
-    radial-gradient(42% 9% at 50% 0%, rgba(131, 223, 233, 0.14), transparent 100%),
-    linear-gradient(180deg, rgba(5, 7, 8, 0.35), rgba(5, 7, 8, 0.85) 14%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 6%, #000 32%, #000 68%, transparent 94%);
-  mask-image: linear-gradient(90deg, transparent 6%, #000 32%, #000 68%, transparent 94%);
-  transform: translateX(-50%);
-  transform-origin: 50% 0;
-  animation: heroHorizonIn 2.4s var(--ease-swan) 0.4s both;
-  pointer-events: none;
-}
-
-.hero-horizon-glow {
-  position: absolute;
-  left: 50%;
-  top: 85%;
-  width: min(1000px, 92%);
-  height: 220px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(50% 50% at 50% 50%, rgba(131, 223, 233, 0.16), transparent 72%);
-  animation:
-    heroGlowIn 2.4s var(--ease-swan) 0.6s both,
-    heroGlowBreath 7s ease-in-out 3s infinite;
-  pointer-events: none;
-}
-
-@keyframes heroHorizonIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) scaleX(0.3);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(-50%) scaleX(1);
-  }
-}
-
-@keyframes heroGlowIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes heroGlowBreath {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.55;
-  }
-}
-
 .hero-swan-layer {
   position: absolute;
   top: 0;
@@ -759,10 +690,6 @@ button {
   border-radius: 50%;
   border: 1px solid var(--border-strong);
   color: var(--cyan);
-}
-
-.hero-eyebrow {
-  margin-bottom: clamp(1.25rem, 2.8vh, 2rem);
 }
 
 .hero-title {
@@ -2854,16 +2781,6 @@ button {
     opacity: 0.85;
   }
 
-  /* Horizon sits below the buttons and curves more on narrow screens */
-  .hero-horizon,
-  .hero-horizon-glow {
-    top: 91%;
-  }
-
-  .hero-horizon {
-    width: max(180%, 700px);
-  }
-
   .hero-scroll-hint {
     bottom: 1.25rem;
     transform: translateX(-50%) scale(0.92);
@@ -2980,12 +2897,6 @@ button {
 
   .hero-buttons {
     gap: 0.75rem;
-  }
-
-  /* Keep the horizon clear of the buttons */
-  .hero-horizon,
-  .hero-horizon-glow {
-    top: 94%;
   }
 }
 

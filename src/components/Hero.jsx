@@ -3,7 +3,6 @@ import { MotionConfig, motion } from 'framer-motion';
 import { FiArrowRight, FiPlayCircle, FiArrowDown } from 'react-icons/fi';
 import HeroSwan from './svg/HeroSwan';
 import { SWAN_PATH } from './svg/BrandSwan';
-import Feathers from './svg/Feathers';
 import HeroSky from './HeroSky';
 import HeroTitle from './HeroTitle';
 
@@ -48,9 +47,6 @@ const Hero = () => {
           <div className="hero-aurora" />
           <div className="hero-grid" />
           <HeroSky />
-          <div className="hero-horizon-glow" />
-          <div className="hero-horizon" />
-          <Feathers />
         </div>
 
         <motion.div
@@ -74,10 +70,6 @@ const Hero = () => {
               <path d={SWAN_PATH} fill="url(#hero-mobile-grad)" fillRule="evenodd" />
             </svg>
           </motion.div>
-
-          <motion.span className="eyebrow hero-eyebrow" variants={fadeUp(0)}>
-            Software · Web · Design
-          </motion.span>
 
           <HeroTitle />
 
