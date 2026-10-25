@@ -947,6 +947,383 @@ button {
   border: 0;
 }
 
+/* ----- Cards — a pair flanking the swan for each act. They surface while
+   the swan decelerates, radiating from the star on their outer corner, and
+   leave with the next gust. JS only toggles .is-shown / .is-leaving on the
+   pair and sets the drift side (--enter-x / --exit-x); the choreography
+   lives here. ----- */
+@property --reveal {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
+}
+
+.swan-river-cards {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.swan-river-pair {
+  position: absolute;
+  inset: 0;
+}
+
+.swan-river-card {
+  --d: 0s;            /* entrance offset — the right card follows the left */
+  --dx: 0s;           /* exit offset */
+  --ox: 0%;           /* x of the star corner */
+  --nudge: 6px;       /* star sits slightly inside the corner */
+  --edge: 90deg;      /* top-edge light runs away from the star */
+  --glint-from: -70%;
+  --glint-to: 170%;
+  --twinkle: 3.2s;    /* first idle twinkle; the pair alternates */
+  position: absolute;
+  top: var(--river-card-y, 55%);
+  width: var(--river-card-w, 320px);
+  translate: 0 -50%;
+  opacity: 0;
+  transform: translate3d(var(--enter-x, 36px), 18px, 0) scale(0.965);
+}
+
+.swan-river-card--left {
+  --dx: 0.06s;
+  right: calc(50% + var(--river-card-gap, 220px));
+}
+
+.swan-river-card--right {
+  --d: 0.14s;
+  --ox: 100%;
+  --nudge: -6px;
+  --edge: 270deg;
+  --glint-from: 170%;
+  --glint-to: -70%;
+  --twinkle: 6.2s;
+  left: calc(50% + var(--river-card-gap, 220px));
+  text-align: right;
+}
+
+.swan-river-pair.is-shown .swan-river-card {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.8s ease calc(var(--d) + 0.1s),
+    transform 1.3s var(--ease-swan) calc(var(--d) + 0.05s);
+}
+
+.swan-river-pair.is-leaving .swan-river-card {
+  opacity: 0;
+  transform: translate3d(var(--exit-x, -36px), -10px, 0) scale(0.98);
+  transition:
+    opacity 0.42s ease-in var(--dx),
+    transform 0.6s cubic-bezier(0.55, 0, 0.75, 0.25) var(--dx);
+}
+
+/* Once in, the pair floats out of phase, like the swan on the water */
+.swan-river-card-body {
+  position: relative;
+}
+
+.swan-river-pair.is-shown .swan-river-card-body,
+.swan-river-pair.is-leaving .swan-river-card-body {
+  animation: swanCardFloat 8s ease-in-out calc(var(--twinkle) - 2s) infinite;
+}
+
+@keyframes swanCardFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Glass shell — revealed by a light that radiates from the star corner */
+.swan-river-card-shell {
+  --reveal: -40%;
+  position: relative;
+  padding: 1.35rem 1.5rem 1.45rem;
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    radial-gradient(120% 90% at var(--ox) 0%, rgba(131, 223, 233, 0.1), transparent 58%),
+    linear-gradient(180deg, rgba(14, 19, 22, 0.74), rgba(8, 11, 13, 0.56));
+  box-shadow:
+    0 30px 60px -36px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  -webkit-mask-image: radial-gradient(circle at var(--ox) 0%, #000 var(--reveal), transparent calc(var(--reveal) + 40%));
+  mask-image: radial-gradient(circle at var(--ox) 0%, #000 var(--reveal), transparent calc(var(--reveal) + 40%));
+}
+
+.swan-river-pair.is-shown .swan-river-card-shell {
+  --reveal: 100%;
+  transition: --reveal 1.5s var(--ease-swan) calc(var(--d) + 0.12s);
+}
+
+.swan-river-pair.is-leaving .swan-river-card-shell {
+  --reveal: 100%;
+}
+
+/* Top edge: a resting light near the star + a glint that runs across once */
+.swan-river-card-shell::before,
+.swan-river-card-shell::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: var(--r-lg);
+  right: var(--r-lg);
+  height: 1px;
+  pointer-events: none;
+}
+
+.swan-river-card-shell::before {
+  background: linear-gradient(var(--edge), rgba(131, 223, 233, 0.55), transparent 72%);
+}
+
+.swan-river-card-shell::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent) no-repeat;
+  background-size: 45% 100%;
+  background-position: var(--glint-from) 0;
+  opacity: 0;
+}
+
+.swan-river-pair.is-shown .swan-river-card-shell::after {
+  background-position: var(--glint-to) 0;
+  opacity: 1;
+  transition:
+    background-position 1.3s var(--ease-soft) calc(var(--d) + 0.8s),
+    opacity 0.3s ease calc(var(--d) + 0.8s);
+}
+
+.swan-river-card-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1rem, 0.45vw + 0.78rem, 1.18rem);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--white);
+  margin: 0 0 0.5rem;
+}
+
+.swan-river-card-text {
+  font-size: clamp(0.84rem, 0.25vw + 0.74rem, 0.94rem);
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+.swan-river-card-title,
+.swan-river-card-text {
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(6px);
+}
+
+.swan-river-pair.is-shown .swan-river-card-title,
+.swan-river-pair.is-shown .swan-river-card-text,
+.swan-river-pair.is-leaving .swan-river-card-title,
+.swan-river-pair.is-leaving .swan-river-card-text {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+.swan-river-pair.is-shown .swan-river-card-title {
+  transition:
+    opacity 0.8s ease calc(var(--d) + 0.42s),
+    transform 1s var(--ease-swan) calc(var(--d) + 0.42s),
+    filter 0.8s ease calc(var(--d) + 0.42s);
+}
+
+.swan-river-pair.is-shown .swan-river-card-text {
+  transition:
+    opacity 0.8s ease calc(var(--d) + 0.56s),
+    transform 1s var(--ease-swan) calc(var(--d) + 0.56s),
+    filter 0.8s ease calc(var(--d) + 0.56s);
+}
+
+/* Star — spins in first, bursts, then twinkles now and then */
+.swan-river-card-star {
+  --star: 38px;
+  position: absolute;
+  top: var(--nudge-y, 6px);
+  left: calc(var(--ox) + var(--nudge));
+  width: var(--star);
+  height: var(--star);
+  margin: calc(var(--star) / -2) 0 0 calc(var(--star) / -2);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: rotate(-135deg) scale(0.2);
+}
+
+.swan-river-pair.is-shown .swan-river-card-star {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.5s ease var(--d),
+    transform 1.2s var(--ease-swan) var(--d);
+}
+
+.swan-river-pair.is-leaving .swan-river-card-star {
+  opacity: 0;
+  transform: rotate(60deg) scale(0.6);
+  transition:
+    opacity 0.4s ease-in var(--dx),
+    transform 0.55s ease-in var(--dx);
+}
+
+.swan-river-card-star-icon {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 6px rgba(131, 223, 233, 0.55));
+}
+
+.swan-river-pair.is-shown .swan-river-card-star-icon {
+  animation: swanStarTwinkle 6s ease-in-out var(--twinkle) infinite;
+}
+
+.swan-river-card-flare {
+  position: absolute;
+  inset: -70%;
+  background:
+    linear-gradient(90deg, transparent, rgba(200, 244, 249, 0.85), transparent) center / 100% 1px no-repeat,
+    linear-gradient(180deg, transparent, rgba(200, 244, 249, 0.85), transparent) center / 1px 100% no-repeat,
+    radial-gradient(closest-side, rgba(131, 223, 233, 0.32), transparent);
+  opacity: 0;
+  transform: scale(0.3);
+  pointer-events: none;
+}
+
+.swan-river-pair.is-shown .swan-river-card-flare {
+  animation:
+    swanStarBurst 1.3s var(--ease-swan) calc(var(--d) + 0.32s) 1,
+    swanStarFlare 6s ease-out var(--twinkle) infinite;
+}
+
+@keyframes swanStarBurst {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-20deg);
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.35) rotate(0deg);
+  }
+}
+
+@keyframes swanStarFlare {
+
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  6% {
+    opacity: 0.85;
+  }
+
+  20% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes swanStarTwinkle {
+
+  0%,
+  20%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px rgba(131, 223, 233, 0.55));
+  }
+
+  7% {
+    transform: scale(1.14);
+    filter: drop-shadow(0 0 12px rgba(131, 223, 233, 0.95));
+  }
+}
+
+/* Narrow scenes: the pair moves below the waterline, side by side */
+.swan-river-sticky.is-cards-stacked .swan-river-pair {
+  inset: auto;
+  top: calc(var(--river-water-y, 64%) + clamp(1.25rem, 3.5vh, 2.25rem));
+  left: 50%;
+  width: min(100% - 2rem, 600px);
+  translate: -50% 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  width: auto;
+  translate: none;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card-shell {
+  padding: 1rem 1rem 1.05rem;
+  border-radius: var(--r-md);
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card-shell::before,
+.swan-river-sticky.is-cards-stacked .swan-river-card-shell::after {
+  left: var(--r-md);
+  right: var(--r-md);
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card-title {
+  font-size: 0.92rem;
+  margin-bottom: 0.35rem;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card-text {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card-star {
+  --star: 28px;
+  --nudge-y: 5px;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card--left .swan-river-card-star {
+  --nudge: 5px;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card--right .swan-river-card-star {
+  --nudge: -5px;
+}
+
+/* Short scenes: titles only, so the pair never reaches the progress rail */
+.swan-river-sticky.is-cards-tight .swan-river-card-text {
+  display: none;
+}
+
+.swan-river-sticky.is-cards-tight .swan-river-card-title {
+  margin-bottom: 0;
+}
+
 /* ----- Progress rail — texts only: first and last act sit on the ends,
    and the rail fades in once the texts take the stage ----- */
 .swan-river-progress {
@@ -1070,6 +1447,39 @@ button {
 .swan-river-acts--static .swan-river-char,
 .swan-river-acts--static .swan-river-act-caption {
   opacity: 1;
+}
+
+.swan-river-acts--static .swan-river-pair {
+  position: relative;
+  inset: auto;
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.swan-river-acts--static .swan-river-card {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  width: auto;
+  translate: none;
+  opacity: 1;
+  transform: none;
+  text-align: left;
+}
+
+.swan-river-acts--static .swan-river-card-shell {
+  --reveal: 100%;
+}
+
+.swan-river-acts--static .swan-river-card-title,
+.swan-river-acts--static .swan-river-card-text,
+.swan-river-acts--static .swan-river-card-star {
+  opacity: 1;
+  transform: none;
+  filter: none;
 }
 
 /* ----- Responsive ----- */

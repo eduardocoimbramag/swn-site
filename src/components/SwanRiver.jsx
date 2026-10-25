@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { SWAN_PATH } from './svg/BrandSwan';
+import CompassStar from './svg/CompassStar';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
 import { RiverScene, clamp01, segment, smoothstep } from '../lib/riverScene';
 
@@ -15,25 +16,59 @@ import { RiverScene, clamp01, segment, smoothstep } from '../lib/riverScene';
  *                 do centro e, quando a palavra assenta, desacelera. Só então
  *                 o scroll é liberado.
  *
+ * A cada palavra, um par de cards ladeia o cisne: eles surgem quando o cisne
+ * desacelera, irradiando da estrela no canto, e partem com a próxima rajada.
+ *
  * Tudo roda num único requestAnimationFrame imperativo (canvas + estilos
  * escritos direto no DOM) — nenhum re-render do React por frame.
  */
 
+/* `cards`: o par que ladeia o cisne em cada ato — [esquerda, direita] */
 const ACTS = [
   {
     num: '01',
     word: 'Origem',
-    caption: 'Toda marca começa com uma única linha.'
+    caption: 'Toda marca começa com uma única linha.',
+    cards: [
+      {
+        title: 'Escuta atenta',
+        text: 'Entendemos o negócio, o público e o objetivo antes do primeiro traço.'
+      },
+      {
+        title: 'Direção clara',
+        text: 'Uma estratégia que orienta cada decisão de design e de código.'
+      }
+    ]
   },
   {
     num: '02',
     word: 'Forma',
-    caption: 'Da intenção nasce o gesto — preciso, intencional.'
+    caption: 'Da intenção nasce o gesto — preciso, intencional.',
+    cards: [
+      {
+        title: 'Design intencional',
+        text: 'Cada elemento existe por um motivo: conduzir o olhar até a decisão.'
+      },
+      {
+        title: 'Código preciso',
+        text: 'Interfaces rápidas, responsivas e construídas para durar.'
+      }
+    ]
   },
   {
     num: '03',
     word: 'Marca',
-    caption: 'Quando tudo se alinha, o cisne é SWN.'
+    caption: 'Quando tudo se alinha, o cisne é SWN.',
+    cards: [
+      {
+        title: 'Presença consistente',
+        text: 'Uma identidade reconhecível em cada ponto de contato com o cliente.'
+      },
+      {
+        title: 'Resultado real',
+        text: 'Experiências que transformam visitantes em clientes.'
+      }
+    ]
   }
 ];
 
@@ -83,6 +118,16 @@ const LANDED = 0.85;       // progresso em que a palavra já assentou aos olhos
 const RELEASE_SWIM = SWIM_SETTLE + 0.12;
 const LOCK_MAX_S = 7;
 const SCROLL_KEYS = new Set([' ', 'Spacebar', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End']);
+
+/* Cards: surgem com o cisne já desacelerando e se apoiam na geometria dele */
+const CARDS_AT = 0.72;     // nado em que o par começa a surgir (desacelerando)
+const CARD_DRIFT = 36;     // px que a correnteza desloca o card na entrada/saída
+const CARD_OUT_S = 0.9;    // depois disso o par que saiu volta ao estado inicial
+const CARD_MAX_W = 340;
+const CARD_MIN_W = 240;    // abaixo disso o par desce para baixo da água
+const SWAN_HALF_W = 384;   // meia largura do cisne no viewBox (x 119–886)
+const CARD_ANCHOR_Y = 520; // altura do cisne (viewBox) onde os cards se alinham
+const SIDES = ['left', 'right'];
 
 const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
 const easeInExit = (t) => Math.pow(t, 2.2);
@@ -151,6 +196,21 @@ const writeGlyph = (el, st, g) => {
   el.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
 };
 
+const RiverCard = ({ card, side }) => (
+  <article className={`swan-river-card swan-river-card--${side}`}>
+    <div className="swan-river-card-body">
+      <div className="swan-river-card-shell">
+        <h4 className="swan-river-card-title">{card.title}</h4>
+        <p className="swan-river-card-text">{card.text}</p>
+      </div>
+      <span className="swan-river-card-star" aria-hidden="true">
+        <span className="swan-river-card-flare" />
+        <CompassStar className="swan-river-card-star-icon" />
+      </span>
+    </div>
+  </article>
+);
+
 const SwanRiver = () => {
   const reduced = usePrefersReducedMotion();
   const hiddenStroke = reduced ? undefined : { strokeDasharray: '0 1', visibility: 'hidden' };
@@ -169,6 +229,7 @@ const SwanRiver = () => {
   const railFillRef = useRef(null);
   const markerRefs = useRef([]);
   const actRefs = useRef([]);
+  const pairRefs = useRef([]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -207,6 +268,26 @@ const SwanRiver = () => {
       strokeGroupRef.current.setAttribute('stroke-width', (STROKE_PX / L.scale).toFixed(2));
       echoGroupRef.current.setAttribute('stroke-width', (ECHO_PX / L.scale).toFixed(2));
       for (const tip of tips) tip.setAttribute('r', (TIP_PX / L.scale).toFixed(2));
+
+      /* Cards: ladeiam o cisne a uma distância fixa dele. Sem largura
+         suficiente nas laterais, o par desce para baixo da linha d'água. */
+      const gap = SWAN_HALF_W * L.scale + Math.min(110, Math.max(40, W * 0.045));
+      const cardW = Math.min(CARD_MAX_W, W / 2 - gap - Math.max(20, W * 0.03));
+      const stacked = cardW < CARD_MIN_W;
+      sticky.style.setProperty('--river-card-gap', `${gap.toFixed(1)}px`);
+      sticky.style.setProperty('--river-card-w', `${Math.max(0, cardW).toFixed(1)}px`);
+      sticky.style.setProperty('--river-water-y', `${L.waterY}px`);
+      sticky.classList.toggle('is-cards-stacked', stacked);
+      sticky.classList.toggle('is-cards-tight', stacked && H - L.waterY < 210);
+
+      /* nas laterais, alinhados ao cisne — mas sempre abaixo do texto do ato */
+      let cardY = L.swanY + CARD_ANCHOR_Y * L.scale;
+      if (!stacked) {
+        const textH = Math.max(0, ...actRefs.current.map((el) => el?.offsetHeight || 0));
+        const cardH = Math.max(0, ...pairRefs.current.map((el) => el?.firstElementChild?.offsetHeight || 0));
+        cardY = Math.max(cardY, L.textY + textH / 2 + 20 + cardH / 2);
+      }
+      sticky.style.setProperty('--river-card-y', `${cardY.toFixed(1)}px`);
     };
 
     /* Cada caneta avança na sua janela; a ponta luminosa acompanha o traço */
@@ -283,7 +364,8 @@ const SwanRiver = () => {
       last: -1,        // último texto que saiu do palco…
       lastExitTo: 2,   // …e por qual lado
       shown: -1,       // último texto que assentou no centro
-      landed: false    // a palavra em cena já assentou (o cisne pode desacelerar)
+      landed: false,   // a palavra em cena já assentou (o cisne pode desacelerar)
+      from: 1          // lado de onde o texto atual chegou (1 direita · −1 esquerda)
     };
 
     const direct = (want, dt) => {
@@ -292,6 +374,7 @@ const SwanRiver = () => {
         /* avançando, entra pela direita; voltando, pelo lado onde tinha saído */
         acts[want].a =
           want === stage.last ? stage.lastExitTo : want > stage.last ? 0 : 2;
+        stage.from = acts[want].a === 2 ? -1 : 1;
         stage.cur = want;
         stage.phase = 'enter';
         stage.landed = false;
@@ -304,6 +387,7 @@ const SwanRiver = () => {
         stage.landed = false;
       } else if (stage.phase === 'exit' && want === stage.cur) {
         stage.phase = 'enter'; // voltou atrás no meio da saída: o texto retorna
+        stage.from = stage.exitTo === 2 ? -1 : 1;
       }
 
       if (stage.phase === 'enter') {
@@ -469,6 +553,53 @@ const SwanRiver = () => {
       }
     };
 
+    /* ---------- Cards: um par por texto ----------
+       Surgem quando a palavra assentou e o cisne já desacelera; saem assim que
+       a próxima troca começa. A coreografia é CSS (classes de estado); aqui só
+       se decide quando e de que lado — a correnteza vem de onde o texto veio. */
+    const pairs = pairRefs.current.map((el) => ({ el, leaving: false, since: 0 }));
+    let cardsOn = -1;
+
+    const showPair = (i) => {
+      const pair = pairs[i];
+      if (!pair?.el) return;
+      if (pair.leaving) {
+        pair.el.classList.remove('is-leaving'); // volta de onde estava
+        pair.leaving = false;
+      } else {
+        pair.el.style.setProperty('--enter-x', `${stage.from * CARD_DRIFT}px`);
+        void pair.el.offsetWidth; // a entrada parte do lado certo
+      }
+      pair.el.classList.add('is-shown');
+    };
+
+    const hidePair = (i) => {
+      const pair = pairs[i];
+      if (!pair?.el) return;
+      pair.el.style.setProperty('--exit-x', `${stage.exitTo === 2 ? -CARD_DRIFT : CARD_DRIFT}px`);
+      pair.el.classList.remove('is-shown');
+      pair.el.classList.add('is-leaving');
+      pair.leaving = true;
+      pair.since = t;
+    };
+
+    const syncCards = () => {
+      let want = cardsOn;
+      if (stage.cur < 0 || stage.phase === 'exit' || !stage.landed) want = -1;
+      else if (cardsOn !== stage.cur && swim <= CARDS_AT) want = stage.cur;
+      if (want !== cardsOn) {
+        if (cardsOn >= 0) hidePair(cardsOn);
+        if (want >= 0) showPair(want);
+        cardsOn = want;
+      }
+      for (const pair of pairs) {
+        if (pair.leaving && t - pair.since > CARD_OUT_S) {
+          pair.el.classList.remove('is-leaving');
+          pair.leaving = false;
+        }
+      }
+    };
+
     const renderActs = (dt, I) => {
       const { W, k } = L;
       const D = W * 0.62 + 60;
@@ -578,6 +709,7 @@ const SwanRiver = () => {
       updateLock();
       renderRail();
       renderActs(dt, I);
+      syncCards();
     };
 
     /* ---------- Loop: só roda com a seção perto da tela ---------- */
@@ -620,6 +752,10 @@ const SwanRiver = () => {
     ro.observe(sticky);
     ro.observe(section);
 
+    /* a altura dos textos (e com ela a posição dos cards) muda com a fonte */
+    let alive = true;
+    document.fonts?.ready.then(() => alive && measure());
+
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('wheel', onUserScrollIntent, { passive: true });
     window.addEventListener('touchstart', onUserScrollIntent, { passive: true });
@@ -627,6 +763,7 @@ const SwanRiver = () => {
     document.addEventListener('click', onClick, true);
 
     return () => {
+      alive = false;
       stop();
       release();
       clearTimeout(navTimer);
@@ -661,6 +798,13 @@ const SwanRiver = () => {
             </span>
           </h3>
           <p className="swan-river-act-caption">{act.caption}</p>
+          {reduced && (
+            <div className="swan-river-pair">
+              {act.cards.map((card, j) => (
+                <RiverCard key={j} card={card} side={SIDES[j]} />
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -749,6 +893,24 @@ const SwanRiver = () => {
         <canvas ref={frontRef} className="swan-river-canvas swan-river-canvas--front" aria-hidden="true" />
 
         {!reduced && actsMarkup}
+
+        {!reduced && (
+          <div className="swan-river-cards">
+            {ACTS.map((act, i) => (
+              <div
+                key={act.num}
+                ref={(el) => {
+                  pairRefs.current[i] = el;
+                }}
+                className="swan-river-pair"
+              >
+                {act.cards.map((card, j) => (
+                  <RiverCard key={j} card={card} side={SIDES[j]} />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
 
         {!reduced && (
           <div ref={railRef} className="swan-river-progress" aria-hidden="true">
