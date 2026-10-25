@@ -1,9 +1,11 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { MotionConfig, motion } from 'framer-motion';
 import { FiArrowRight, FiPlayCircle, FiArrowDown } from 'react-icons/fi';
 import HeroSwan from './svg/HeroSwan';
 import { SWAN_PATH } from './svg/BrandSwan';
 import Feathers from './svg/Feathers';
+import HeroSky from './HeroSky';
+import HeroTitle from './HeroTitle';
 
 const swanEase = [0.22, 1, 0.36, 1];
 
@@ -24,7 +26,7 @@ const Hero = () => {
   };
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <motion.div
         className="hero-swan-layer"
         initial={{ opacity: 0, scale: 0.94 }}
@@ -32,17 +34,22 @@ const Hero = () => {
         transition={{ duration: 2, delay: 0.3, ease: swanEase }}
         aria-hidden="true"
       >
-        <HeroSwan size={460} />
+        {/* o cisne flutua devagar, como sobre a água */}
+        <motion.div
+          animate={{ y: [0, -12, 0], rotate: [0, -0.6, 0] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <HeroSwan size={460} />
+        </motion.div>
       </motion.div>
 
       <section id="hero" className="hero">
-        <div className="hero-bg">
-          <motion.div
-            className="hero-aurora"
-            animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.05, 1] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
+        <div className="hero-bg" aria-hidden="true">
+          <div className="hero-aurora" />
           <div className="hero-grid" />
+          <HeroSky />
+          <div className="hero-horizon-glow" />
+          <div className="hero-horizon" />
           <Feathers />
         </div>
 
@@ -68,19 +75,19 @@ const Hero = () => {
             </svg>
           </motion.div>
 
-          <motion.h1 className="hero-title" variants={fadeUp(0.15)}>
-            <span className="grad">Onde a beleza</span>
-            <br />
-            encontra a <span className="italic">performance</span>.
-          </motion.h1>
+          <motion.span className="eyebrow hero-eyebrow" variants={fadeUp(0)}>
+            Software · Web · Design
+          </motion.span>
 
-          <motion.p className="hero-subtitle" variants={fadeUp(0.35)}>
+          <HeroTitle />
+
+          <motion.p className="hero-subtitle" variants={fadeUp(0.75)}>
             Criamos softwares, sites e experiências digitais para empresas que querem
             sair do improviso e crescer com sofisticação — com a leveza de um cisne
             e a precisão de um relógio.
           </motion.p>
 
-          <motion.div className="hero-buttons" variants={fadeUp(0.55)}>
+          <motion.div className="hero-buttons" variants={fadeUp(0.95)}>
             <button
               className="btn-primary"
               onClick={() => handleScroll('#contact')}
@@ -101,7 +108,7 @@ const Hero = () => {
           onClick={() => handleScroll('#about')}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.6, ease: swanEase }}
+          transition={{ duration: 1, delay: 2, ease: swanEase }}
           aria-label="Role para descobrir mais"
         >
           <span className="hero-scroll-hint-label">Role para descobrir</span>
@@ -115,7 +122,7 @@ const Hero = () => {
           </motion.span>
         </motion.button>
       </section>
-    </>
+    </MotionConfig>
   );
 };
 

@@ -43,7 +43,6 @@ const Footer = () => {
             <ul>
               <li><a {...section('about')}>Sobre</a></li>
               <li><a {...section('team')}>Equipe</a></li>
-              <li><a {...section('process')}>Processo</a></li>
               <li><a {...section('portfolio')}>Cases</a></li>
               <li><a {...section('testimonials')}>Depoimentos</a></li>
             </ul>
