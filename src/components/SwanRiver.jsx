@@ -27,16 +27,16 @@ import { RiverScene, clamp01, segment, smoothstep } from '../lib/riverScene';
 const ACTS = [
   {
     num: '01',
-    word: 'Origem',
-    caption: 'Toda marca começa com uma única linha.',
+    word: 'Quem somos?',
+    caption: 'Agência para marcas que querem performar.',
     cards: [
       {
-        title: 'Escuta atenta',
-        text: 'Entendemos o negócio, o público e o objetivo antes do primeiro traço.'
+        title: 'Do improviso à sofisticação.',
+        text: 'Criamos softwares, sites e experiências digitais para empresas que querem trocar o amadorismo por um padrão de entrega à altura da própria marca.'
       },
       {
-        title: 'Direção clara',
-        text: 'Uma estratégia que orienta cada decisão de design e de código.'
+        title: 'Beleza de cisne. Precisão de relojoaria.',
+        text: 'Cada projeto nasce de um briefing claro e termina em um código limpo e eficiente. Ambos arquitetados em conjunto pela nossa equipe, sem nenhuma ponta solta.'
       }
     ]
   },
