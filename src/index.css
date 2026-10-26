@@ -805,6 +805,11 @@ button {
   line-height: 1.65;
 }
 
+.hero-subtitle--spacer {
+  visibility: hidden;
+  user-select: none;
+}
+
 .hero-buttons {
   display: flex;
   gap: 1rem;

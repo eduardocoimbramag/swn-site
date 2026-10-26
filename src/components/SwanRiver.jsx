@@ -57,8 +57,8 @@ const ACTS = [
   },
   {
     num: '03',
-    word: 'Marca',
-    caption: 'Quando tudo se alinha, o cisne é SWN.',
+    word: 'O que muda para você?',
+    caption: 'Resultado.',
     cards: [
       {
         title: 'Presença consistente',
