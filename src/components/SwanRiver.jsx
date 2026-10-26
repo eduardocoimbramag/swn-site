@@ -42,16 +42,16 @@ const ACTS = [
   },
   {
     num: '02',
-    word: 'Forma',
-    caption: 'Da intenção nasce o gesto — preciso, intencional.',
+    word: 'Como trabalhamos?',
+    caption: 'Diagnóstico, planejamento, construção e lançamento. Sem etapa pulada.',
     cards: [
       {
-        title: 'Design intencional',
-        text: 'Cada elemento existe por um motivo: conduzir o olhar até a decisão.'
+        title: 'Antes do resultado.',
+        text: 'Entendemos seu negócio, público e suas metas. Você acompanha o projeto sendo desenvolvido em tempo real, cada etapa passa pela sua aprovação até a entrega, na data acordada.'
       },
       {
-        title: 'Código preciso',
-        text: 'Interfaces rápidas, responsivas e construídas para durar.'
+        title: 'Depois do resultado.',
+        text: 'Continuidade, juntos! Suporte técnico, atualizações de segurança e monitoramento.'
       }
     ]
   },
@@ -187,8 +187,8 @@ const writeGlyph = (el, st, g) => {
   const blur = m * 4.5 * g.strength;
   const skew = lean * 14 * g.strength;
   const stretch = 1 + m * 0.5 * g.strength;
-  const y = (Math.sin(g.t * 2.6 + g.seed * 0.55) * 14 * g.travel + Math.sin(g.t * 1.7 + g.seed * 0.6) * 1.4 * g.sway) * g.k;
-  const rot = Math.sin(g.t * 2.1 + g.seed * 0.9) * 7 * g.travel * g.strength + Math.sin(g.t * 1.3 + g.seed) * 0.5 * g.sway;
+  const y = Math.sin(g.t * 2.6 + g.seed * 0.55) * 14 * g.travel * g.k;
+  const rot = Math.sin(g.t * 2.1 + g.seed * 0.9) * 7 * g.travel * g.strength;
 
   /* 2D de propósito: camada 3D + background-clip:text falha no Safari */
   el.style.transform = `translate(${g.x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${rot.toFixed(2)}deg) skewX(${skew.toFixed(2)}deg) scaleX(${stretch.toFixed(3)})`;
@@ -600,7 +600,7 @@ const SwanRiver = () => {
       }
     };
 
-    const renderActs = (dt, I) => {
+    const renderActs = (dt) => {
       const { W, k } = L;
       const D = W * 0.62 + 60;
       const vRef = W * 1.3;
@@ -635,7 +635,6 @@ const SwanRiver = () => {
             x: offstage ? (exit === 1 ? -D : D) : D * (1 - easeOutQuart(ej)) - D * easeInExit(xj),
             opacity: offstage ? 0 : smoothstep(clamp01(ej * 2.4)) * (1 - smoothstep(clamp01((xj - 0.12) / 0.6))),
             travel,
-            sway: I * (1 - travel),
             strength: 1,
             seed: j + i * 3,
             dt,
@@ -653,7 +652,6 @@ const SwanRiver = () => {
           x: offstage ? (exit === 1 ? -D : D) : D * (1 - easeOutQuart(ec)) - D * easeInExit(xc),
           opacity: offstage ? 0 : smoothstep(clamp01(ec * 2)) * (1 - smoothstep(clamp01(xc / 0.7))),
           travel: travel * 0.5,
-          sway: I * (1 - travel) * 0.6,
           strength: 0.55,
           seed: 11 + i,
           dt,
@@ -708,7 +706,7 @@ const SwanRiver = () => {
 
       updateLock();
       renderRail();
-      renderActs(dt, I);
+      renderActs(dt);
       syncCards();
     };
 
@@ -792,7 +790,7 @@ const SwanRiver = () => {
             <span aria-hidden="true">
               {Array.from(act.word).map((ch, j) => (
                 <span key={j} className="swan-river-char">
-                  {ch}
+                  {ch === ' ' ? ' ' : ch}
                 </span>
               ))}
             </span>
