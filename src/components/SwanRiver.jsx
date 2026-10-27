@@ -61,12 +61,12 @@ const ACTS = [
     caption: 'Resultado.',
     cards: [
       {
-        title: 'Presença consistente',
-        text: 'Uma identidade reconhecível em cada ponto de contato com o cliente.'
+        title: 'Um dos seus maiores ativos',
+        text: 'Estrutura e excelência. Melhorando seus processos, captação ou conversão.'
       },
       {
-        title: 'Resultado real',
-        text: 'Experiências que transformam visitantes em clientes.'
+        title: 'O que o tempo confirma, não desmonta',
+        text: 'Projetos sólidos. O que nasce de critério não volta para a mesa depois. Passado um ano, você olha e ainda concorda com tudo, atemporal.'
       }
     ]
   }
