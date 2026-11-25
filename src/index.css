@@ -1638,169 +1638,1053 @@ button {
   }
 }
 
-/* ---------- Services ---------- */
+/* ---------- Services — "Nossos Serviços": a title at center stage and a
+   deck that lands over it along a diagonal, scroll-driven. Poses, focus and
+   the title's depth come from JS (Services.jsx); look and state-driven
+   choreography (.is-seen: landed once · .is-live: top of the deck) live
+   here. ---------- */
+@property --svc-orbit {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .services {
-  padding: 8rem 1.5rem;
+  --services-top: 80px; /* clears the fixed header */
   position: relative;
+  /* height is set inline from the scroll script (Services.jsx) */
 }
 
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-  max-width: var(--container);
-  margin: 0 auto;
-}
-
-.glow-card {
-  position: relative;
-  padding: 2rem;
-  border-radius: var(--r-lg);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-  border: 1px solid var(--border);
+.services-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
   overflow: hidden;
   isolation: isolate;
-  /* Card becomes a flex column so the CTA can stick to the bottom */
-  display: flex;
-  flex-direction: column;
-  /* 3D perspective for tilt — mouse-controlled via --rx/--ry */
-  perspective: 1000px;
-  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transform-style: preserve-3d;
-  transition:
-    transform 0.6s var(--ease-swan),
-    border-color 0.4s ease,
-    box-shadow 0.5s var(--ease-swan);
-  z-index: 1;
 }
 
-.glow-card::before {
-  content: '';
+/* ----- Title ----- */
+.services-title {
   position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: conic-gradient(from var(--angle, 0deg), transparent 0deg, var(--cyan) 60deg, transparent 120deg, transparent 240deg, var(--cyan) 300deg, transparent 360deg);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  z-index: -2;
-  animation: rotateBorder 6s linear infinite;
-}
-
-@property --angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes rotateBorder {
-  to {
-    --angle: 360deg;
-  }
-}
-
-.glow-card::after {
-  content: '';
-  position: absolute;
-  inset: 1px;
-  border-radius: calc(var(--r-lg) - 1px);
-  background: linear-gradient(180deg, #0A0D0F, #06080A);
-  z-index: -1;
-}
-
-.glow-card:hover {
-  /* Combine tilt vars with the lift translate */
-  transform:
-    perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px);
-  box-shadow:
-    0 28px 70px -28px rgba(131, 223, 233, 0.40),
-    0 0 0 1px rgba(131, 223, 233, 0.15);
-}
-
-.glow-card:hover::before {
-  opacity: 0.6;
-}
-
-.glow-card-spotlight {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgba(131, 223, 233, 0.15), transparent 50%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-}
-
-.glow-card:hover .glow-card-spotlight {
-  opacity: 1;
-}
-
-.glow-card-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  background: rgba(131, 223, 233, 0.08);
-  border: 1px solid var(--cyan-line);
-  display: grid;
-  place-items: center;
-  margin-bottom: 1.5rem;
-  transition: background 0.4s var(--ease-swan), border-color 0.4s ease;
-}
-
-.glow-card:hover .glow-card-icon {
-  background: rgba(131, 223, 233, 0.14);
-  border-color: var(--cyan);
-}
-
-.glow-card-icon-inner {
+  inset: var(--services-top) 0 0;
+  z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  transform-origin: center;
+  margin: 0;
+  padding: 0 1rem;
+  pointer-events: none;
 }
 
-.glow-card h3 {
-  font-size: 1.45rem;
+.services-title-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.26em;
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(3.4rem, 8.8vw, 9.75rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  text-align: center;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.services-title-word {
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+/* Each glyph carries its own gradient so it can move on its own (2D only:
+   3D + background-clip:text breaks in Safari). Padding keeps the painted
+   box larger than the glyph — vertically for the cedilla, sideways because
+   the negative tracking makes each box narrower than its letter (the last
+   "s" was clipped) — and the matching negative margin keeps the spacing. */
+.services-title-char {
+  display: inline-block;
+  padding: 0.08em 0.08em 0.18em;
+  margin: -0.08em -0.08em -0.18em;
+  background: linear-gradient(180deg, #ffffff 12%, rgba(255, 255, 255, 0.7) 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  transform-origin: 50% 100%;
+}
+
+.services-title-word.is-accent .services-title-char {
+  background: linear-gradient(180deg, #ffffff 0%, #c6f3f7 38%, var(--cyan) 86%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ----- Deck ----- */
+.services-deck {
+  position: absolute;
+  inset: var(--services-top) 0 0;
+  z-index: 1;
+  perspective: 1500px;
+  perspective-origin: 50% 45%;
+}
+
+/* ----- Card: smoked glass over the title ----- */
+.service-card {
+  --depth: 0;
+  --glare: 140;
+  --r: 26px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(860px, calc(100vw - 4rem));
+  aspect-ratio: 16 / 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'body visual'
+    'cta visual';
+  border-radius: var(--r);
+  background:
+    radial-gradient(120% 55% at 0% 0%, rgba(131, 223, 233, 0.1), transparent 60%),
+    linear-gradient(168deg, rgba(18, 26, 29, 0.6) 0%, rgba(8, 11, 13, 0.74) 52%, rgba(5, 7, 8, 0.88) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  backdrop-filter: blur(22px) saturate(1.35);
+  box-shadow:
+    0 80px 120px -60px rgba(0, 0, 0, 0.95),
+    0 34px 60px -34px rgba(0, 0, 0, 0.75),
+    0 50px 100px -60px rgba(131, 223, 233, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.service-card.is-live {
+  pointer-events: auto;
+}
+
+/* Lite (touch / small / low-power): no live backdrop blur, denser glass */
+.services[data-lite='true'] .service-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background:
+    radial-gradient(120% 55% at 0% 0%, rgba(131, 223, 233, 0.1), transparent 60%),
+    linear-gradient(168deg, #10181b 0%, #0a0e10 52%, #06080a 100%);
+}
+
+/* Gradient hairline border, plus a light that orbits it on the top card */
+.service-card-border {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(150deg,
+      rgba(131, 223, 233, 0.62) 0%,
+      rgba(131, 223, 233, 0.1) 26%,
+      rgba(255, 255, 255, 0.05) 60%,
+      rgba(131, 223, 233, 0.3) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
+.service-card-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from var(--svc-orbit) at 50% 50%,
+      transparent 0deg 280deg,
+      rgba(131, 223, 233, 0.35) 318deg,
+      rgba(230, 252, 255, 1) 348deg,
+      transparent 360deg);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.service-card.is-live .service-card-border::after {
+  opacity: 1;
+  animation: svcOrbit 7s linear infinite;
+}
+
+@keyframes svcOrbit {
+  to {
+    --svc-orbit: 360deg;
+  }
+}
+
+/* Light following the cursor */
+.service-card-spot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(131, 223, 233, 0.13), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.service-card.is-live:hover .service-card-spot {
+  opacity: 1;
+}
+
+/* Specular glare — swept by the scroll as the card lands */
+.service-card-glare {
+  position: absolute;
+  inset: -20% -10%;
+  z-index: 4;
+  background: linear-gradient(105deg,
+      transparent 36%,
+      rgba(255, 255, 255, 0.04) 42%,
+      rgba(255, 255, 255, 0.2) 48%,
+      rgba(131, 223, 233, 0.16) 52%,
+      rgba(255, 255, 255, 0.03) 58%,
+      transparent 64%);
+  transform: translate3d(calc(var(--glare) * 1%), 0, 0);
+  pointer-events: none;
+}
+
+/* Film grain — keeps the glass from reading as flat plastic */
+.service-card-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Cards deeper in the deck sink into the night */
+.service-card-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(4, 6, 7, 0.62), rgba(4, 6, 7, 0.9));
+  opacity: clamp(0, calc(var(--depth) * 0.42), 0.86);
+  pointer-events: none;
+}
+
+/* ----- Visual panel: the service's scene ----- */
+.service-card-visual {
+  position: relative;
+  z-index: 1;
+  grid-area: visual;
+  margin: 12px 12px 12px 0;
+  border-radius: calc(var(--r) - 11px);
+  overflow: hidden;
+  background:
+    radial-gradient(90% 100% at 50% 0%, rgba(131, 223, 233, 0.16), transparent 70%),
+    linear-gradient(180deg, #0b1417 0%, #070b0d 100%);
+  box-shadow: inset 0 0 0 1px rgba(131, 223, 233, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.service-card-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(131, 223, 233, 0.06) 1px, transparent 1px) 0 0 / 18px 18px,
+    linear-gradient(90deg, rgba(131, 223, 233, 0.06) 1px, transparent 1px) 0 0 / 18px 18px;
+  -webkit-mask-image: radial-gradient(80% 90% at 50% 30%, #000, transparent 75%);
+  mask-image: radial-gradient(80% 90% at 50% 30%, #000, transparent 75%);
+  pointer-events: none;
+}
+
+/* the river: soft horizontal lines settling at the bottom of the panel */
+.service-card-visual::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  background: repeating-linear-gradient(180deg, rgba(131, 223, 233, 0.13) 0 1px, transparent 1px 11px);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 70%), radial-gradient(70% 100% at 50% 100%, #000, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(180deg, transparent, #000 70%), radial-gradient(70% 100% at 50% 100%, #000, transparent);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+
+/* scene centered in the panel; settles from a slight zoom when the card lands */
+.service-card-visual .scene {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  transform: translate(-50%, -50%) scale(1.08);
+  transition: transform 0.5s ease;
+}
+
+.service-card.is-seen .service-card-visual .scene {
+  transform: translate(-50%, -50%);
+  transition: transform 2.2s var(--ease-swan) 0.1s;
+}
+
+/* ----- Body copy ----- */
+.service-card-body {
+  grid-area: body;
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding: 2.4rem 2.2rem 1.6rem 2.6rem;
+}
+
+.service-card-title {
+  margin: 0 0 0.9rem;
+  overflow: hidden;
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(1.8rem, 1.5vw + 1rem, 2.4rem);
   font-weight: 700;
-  margin-bottom: 0.85rem;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
   color: var(--white);
 }
 
-.glow-card>p {
-  color: var(--text-soft);
-  font-size: 0.97rem;
+.service-card-title-inner {
+  display: block;
+  padding-bottom: 0.08em;
+  background: linear-gradient(180deg, #ffffff 30%, #c6f3f7 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.service-card-desc {
+  margin: 0 0 1.5rem;
+  max-width: 40ch;
+  font-size: clamp(0.96rem, 0.25vw + 0.85rem, 1.06rem);
   line-height: 1.65;
-  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.72);
 }
 
-.glow-card-items {
+.service-card-list {
   list-style: none;
-  display: grid;
-  gap: 0.45rem;
-  border-top: 1px dashed var(--border);
-  padding-top: 1.25rem;
-  /* Allow the items to absorb extra space, pushing the CTA to the bottom */
-  flex: 1;
-  align-content: start;
+  margin: 0;
+  padding: 0;
 }
 
-.glow-card-items li {
+.service-card-list li {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  color: var(--text-soft);
-  font-size: 0.92rem;
+  gap: 0.85rem;
+  padding: 0.66rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: clamp(0.92rem, 0.2vw + 0.84rem, 1rem);
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.item-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  background: var(--cyan);
-  border-radius: 50%;
+.service-card-list li:last-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* four-point spark — the compass star, distilled */
+.service-card-bullet {
   flex-shrink: 0;
-  box-shadow: 0 0 8px var(--cyan-glow);
+  width: 11px;
+  height: 11px;
+  background: var(--cyan);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 5px rgba(131, 223, 233, 0.75));
+}
+
+/* ----- CTA: a luminous pill — the brightest thing on the card ----- */
+.service-card-cta {
+  grid-area: cta;
+  justify-self: start;
+  align-self: end;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin: 0 2.4rem 2.2rem 2.6rem;
+  padding: 0.45rem 0.45rem 0.45rem 1.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c3f4f8 0%, var(--cyan) 45%, #5fc9d6 100%);
+  color: #041013;
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    0 18px 44px -14px rgba(131, 223, 233, 0.6),
+    0 0 0 1px rgba(131, 223, 233, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -2px 6px rgba(4, 16, 19, 0.18);
+  transition:
+    translate 0.6s var(--ease-swan),
+    box-shadow 0.6s var(--ease-swan);
+}
+
+/* glint that crosses the pill every few seconds on the top card */
+.service-card-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.75) 48%, transparent 66%) no-repeat;
+  background-size: 60% 100%;
+  background-position: -120% 0;
+}
+
+.service-card.is-live .service-card-cta::before {
+  animation: svcCtaGlint 4.5s var(--ease-soft) 2s infinite;
+}
+
+@keyframes svcCtaGlint {
+  0% {
+    background-position: -120% 0;
+  }
+
+  35%,
+  100% {
+    background-position: 260% 0;
+  }
+}
+
+.service-card-cta:hover {
+  translate: 0 -3px;
+  box-shadow:
+    0 26px 60px -16px rgba(131, 223, 233, 0.8),
+    0 0 0 1px rgba(198, 243, 247, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -2px 6px rgba(4, 16, 19, 0.18);
+}
+
+.service-card-cta:active {
+  translate: 0 -1px;
+}
+
+.service-card-cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 4px;
+}
+
+.service-card-cta-label {
+  white-space: nowrap;
+}
+
+.service-card-cta-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--cyan);
+  background: #061316;
+  box-shadow: inset 0 0 0 1px rgba(131, 223, 233, 0.25);
+  transition: transform 0.6s var(--ease-swan), background 0.45s ease;
+}
+
+.service-card-cta:hover .service-card-cta-icon {
+  transform: rotate(45deg);
+  background: #020a0c;
+}
+
+/* ----- Landing choreography: copy arrives once the card has landed;
+   on the way out it clears fast, without delays ----- */
+.service-card-desc,
+.service-card-list li,
+.service-card-cta {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.service-card-title-inner {
+  transform: translateY(108%);
+  transition: transform 0.3s ease;
+}
+
+.service-card.is-seen .service-card-desc,
+.service-card.is-seen .service-card-list li,
+.service-card.is-seen .service-card-cta {
+  opacity: 1;
+  transform: none;
+}
+
+.service-card.is-seen .service-card-title-inner {
+  transform: none;
+  transition: transform 1.1s var(--ease-swan) 0.18s;
+}
+
+.service-card.is-seen .service-card-desc {
+  transition: opacity 0.8s ease 0.34s, transform 1s var(--ease-swan) 0.34s;
+}
+
+.service-card.is-seen .service-card-list li {
+  transition:
+    opacity 0.7s ease calc(0.46s + var(--k) * 0.08s),
+    transform 0.9s var(--ease-swan) calc(0.46s + var(--k) * 0.08s);
+}
+
+.service-card.is-seen .service-card-cta {
+  transition: opacity 0.8s ease 0.82s, transform 1s var(--ease-swan) 0.82s;
+}
+
+/* ----- Scenes (svg/ServiceScenes.jsx) ----- */
+.scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.scene-stroke {
+  fill: none;
+  stroke: rgba(131, 223, 233, 0.6);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.4s ease;
+}
+
+.scene-frame {
+  stroke: rgba(131, 223, 233, 0.42);
+}
+
+.scene-faint,
+.scene-grid {
+  stroke: rgba(131, 223, 233, 0.16);
+}
+
+.scene-wire {
+  stroke: rgba(131, 223, 233, 0.4);
+}
+
+.scene-hero-line,
+.scene-curve {
+  stroke: var(--cyan);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(131, 223, 233, 0.6));
+}
+
+.scene-handle {
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 1;
+}
+
+.scene-check {
+  stroke: #041013;
+  stroke-width: 2.2;
+}
+
+.service-card.is-seen .scene-stroke {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.5s var(--ease-swan) calc(0.15s + var(--k, 0) * 0.1s);
+}
+
+/* Bars "type in" from the left */
+.scene-bar {
+  fill: rgba(255, 255, 255, 0.14);
+  transform-box: fill-box;
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.scene-bar.is-accent {
+  fill: rgba(131, 223, 233, 0.62);
+}
+
+.scene-bar.is-bright {
+  fill: rgba(255, 255, 255, 0.78);
+}
+
+.service-card.is-seen .scene-bar {
+  transform: none;
+  transition: transform 0.9s var(--ease-swan) calc(0.4s + var(--k, 0) * 0.08s);
+}
+
+/* Pieces that pop in */
+.scene-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.service-card.is-seen .scene-pop {
+  transform: none;
+  opacity: 1;
+  transition:
+    transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.3s + var(--k, 0) * 0.09s),
+    opacity 0.4s ease calc(0.3s + var(--k, 0) * 0.09s);
+}
+
+.scene-dot-ui {
+  fill: rgba(255, 255, 255, 0.22);
+}
+
+.scene-node,
+.scene-panel {
+  fill: rgba(131, 223, 233, 0.06);
+  stroke: rgba(131, 223, 233, 0.45);
+  stroke-width: 1;
+}
+
+.scene-core {
+  fill: var(--cyan);
+  stroke: none;
+  filter: drop-shadow(0 0 8px rgba(131, 223, 233, 0.7));
+}
+
+.scene-url {
+  fill: rgba(255, 255, 255, 0.04);
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+}
+
+.scene-btn {
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 6px rgba(131, 223, 233, 0.5));
+}
+
+.scene-btn-label {
+  fill: #041013;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.service-card.is-seen .scene-btn-label {
+  opacity: 0.85;
+  transition: opacity 0.6s ease 1s;
+}
+
+.scene-btn-ghost {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1;
+}
+
+.scene-end {
+  fill: #ffffff;
+}
+
+.scene-area {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.service-card.is-seen .scene-area {
+  opacity: 1;
+  transition: opacity 1.4s ease 1.2s;
+}
+
+.scene-board {
+  fill: rgba(255, 255, 255, 0.015);
+  stroke: rgba(131, 223, 233, 0.3);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.scene-swatch {
+  fill: var(--cyan);
+}
+
+.scene-swatch.is-light {
+  fill: #e8fbfd;
+}
+
+.scene-swatch.is-dark {
+  fill: #0c1417;
+  stroke: rgba(131, 223, 233, 0.5);
+  stroke-width: 1;
+}
+
+.scene-type {
+  font-family: 'Sora', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  fill: rgba(255, 255, 255, 0.82);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.service-card.is-seen .scene-type {
+  opacity: 1;
+  transition: opacity 1s ease 0.6s;
+}
+
+.scene-anchor {
+  fill: #0a1012;
+  stroke: var(--cyan);
+  stroke-width: 1.2;
+}
+
+.scene-anchor.is-active {
+  fill: var(--cyan);
+}
+
+.scene-knob {
+  fill: #ffffff;
+}
+
+/* ----- Live loops (top card only) ----- */
+.scene-caret {
+  fill: var(--cyan);
+  opacity: 0;
+}
+
+.service-card.is-live .scene-caret {
+  animation: sceneBlink 1.05s steps(1) 1.3s infinite;
+}
+
+@keyframes sceneBlink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+/* a spark travelling down each wire */
+.scene-pulse {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 0.12 1.2;
+  stroke-dashoffset: 0.12;
+  filter: drop-shadow(0 0 3px rgba(131, 223, 233, 0.95));
+  opacity: 0;
+}
+
+.service-card.is-live .scene-pulse {
+  opacity: 1;
+  animation: scenePulse 2.4s cubic-bezier(0.45, 0, 0.55, 1) calc(1.5s + var(--k) * 0.3s) infinite both;
+}
+
+@keyframes scenePulse {
+  0% {
+    stroke-dashoffset: 0.12;
+  }
+
+  70%,
+  100% {
+    stroke-dashoffset: -1.05;
+  }
+}
+
+.scene-ping {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 1.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.service-card.is-live .scene-ping {
+  animation: scenePing 2.4s ease-out 1.8s infinite;
+}
+
+@keyframes scenePing {
+  0% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+/* cursor glides to the CTA and clicks it */
+.scene-cursor {
+  opacity: 0;
+  transform: translate(190px, 168px);
+}
+
+.scene-cursor path {
+  fill: #ffffff;
+  stroke: #041013;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.service-card.is-live .scene-cursor {
+  animation: sceneCursor 4.6s var(--ease-swan) 1.4s infinite;
+}
+
+@keyframes sceneCursor {
+  0% {
+    opacity: 0;
+    transform: translate(190px, 168px);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  42%,
+  48% {
+    transform: translate(76px, 124px) scale(1);
+  }
+
+  52% {
+    transform: translate(76px, 124px) scale(0.82);
+  }
+
+  58% {
+    transform: translate(76px, 124px) scale(1);
+  }
+
+  82% {
+    opacity: 1;
+    transform: translate(76px, 124px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(96px, 140px);
+  }
+}
+
+.scene-ripple {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.service-card.is-live .scene-ripple {
+  animation: sceneRipple 4.6s ease-out 1.4s infinite;
+}
+
+@keyframes sceneRipple {
+
+  0%,
+  50% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  53% {
+    opacity: 0.9;
+  }
+
+  72%,
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+/* pen rests on the last anchor, breathing */
+.scene-pen {
+  opacity: 0;
+  transform: translate(318px, 72px);
+  transition: opacity 0.3s ease;
+}
+
+.scene-pen path {
+  fill: rgba(10, 16, 18, 0.9);
+  stroke: #ffffff;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+
+.scene-pen circle {
+  fill: var(--cyan);
+}
+
+.service-card.is-seen .scene-pen {
+  opacity: 1;
+  transition: opacity 0.6s ease 1.4s;
+}
+
+.service-card.is-live .scene-pen {
+  animation: scenePen 3.2s ease-in-out 1.6s infinite;
+}
+
+@keyframes scenePen {
+
+  0%,
+  100% {
+    transform: translate(318px, 72px) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(320px, 68px) rotate(-6deg);
+  }
+}
+
+/* ----- Reduced motion: title on top, a calm grid of cards ----- */
+.services--static {
+  padding: 7rem 1.5rem 6rem;
+}
+
+.services--static .services-sticky {
+  position: relative;
+  height: auto;
+  overflow: visible;
+}
+
+.services--static .services-title {
+  position: relative;
+  inset: auto;
+  margin-bottom: 3.5rem;
+}
+
+.services--static .services-title-inner {
+  font-size: clamp(2.6rem, 6vw, 5rem);
+}
+
+.services--static .services-deck {
+  position: relative;
+  inset: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  perspective: none;
+}
+
+.services--static .service-card {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: auto;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 900px) {
+  .services {
+    --services-top: 68px;
+  }
+}
+
+/* Short desktop viewports: compact the card instead of shrinking it */
+@media (max-height: 780px) and (min-width: 701px) {
+  .service-card {
+    aspect-ratio: 16 / 9;
+  }
+
+  .service-card-body {
+    padding-top: 1.8rem;
+    padding-bottom: 1.1rem;
+  }
+
+  .service-card-desc {
+    margin-bottom: 1rem;
+  }
+
+  .service-card-list li {
+    padding: 0.48rem 0;
+  }
+
+  .service-card-cta {
+    margin-bottom: 1.6rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .service-card {
+    aspect-ratio: auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'visual'
+      'body'
+      'cta';
+  }
+
+  .service-card-visual {
+    aspect-ratio: 2 / 1;
+    margin: 10px 10px 0;
+  }
+
+  .service-card-body {
+    align-self: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .services-title-inner {
+    flex-direction: column;
+    align-items: center;
+    font-size: clamp(3rem, 17vw, 5.5rem);
+    line-height: 0.95;
+  }
+
+  .service-card {
+    --r: 22px;
+    width: calc(100vw - 5.5rem);
+    max-width: 360px;
+  }
+
+  .service-card-body {
+    padding: 1.15rem 1.25rem 1rem;
+  }
+
+  .service-card-title {
+    font-size: 1.45rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .service-card-desc {
+    font-size: 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .service-card-list li {
+    padding: 0.45rem 0;
+    font-size: 0.86rem;
+  }
+
+  .service-card-cta {
+    justify-self: stretch;
+    justify-content: space-between;
+    margin: 0 1.1rem 1.1rem;
+    padding: 0.35rem 0.35rem 0.35rem 1.25rem;
+    font-size: 0.92rem;
+  }
+
+  .service-card-cta-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .services--static .services-title-inner {
+    font-size: clamp(2.6rem, 13vw, 4rem);
+  }
+
+  .services--static .service-card {
+    width: auto;
+    max-width: none;
+  }
 }
 
 /* ---------- Team — "Nosso time": rotating deck of professionals ---------- */
@@ -3325,7 +4209,6 @@ button {
     display: none;
   }
 
-  .services,
   .testimonials,
   .contact,
   .cta {
@@ -3445,41 +4328,6 @@ button {
 
 .wave-divider--flip {
   transform: scaleY(-1);
-}
-
-/* ---------- Service card CTA (item 7.3) ---------- */
-.glow-card-cta {
-  /* Sticks to the bottom of the card and centers horizontally */
-  margin-top: 1.5rem;
-  align-self: center;
-
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: 'Sora', sans-serif;
-  font-weight: 500;
-  font-size: 0.88rem;
-  color: var(--cyan);
-  background: transparent;
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--cyan-line);
-  transition: background 0.3s ease, border-color 0.3s ease, transform 0.4s var(--ease-swan);
-  letter-spacing: 0.01em;
-}
-
-.glow-card-cta:hover {
-  background: rgba(131, 223, 233, 0.08);
-  border-color: var(--cyan);
-  transform: translateY(-2px);
-}
-
-.glow-card-cta .btn-arrow {
-  transition: transform 0.4s var(--ease-swan);
-}
-
-.glow-card-cta:hover .btn-arrow {
-  transform: translateX(3px);
 }
 
 /* ---------- Contact form validation (item 10.1) ---------- */
