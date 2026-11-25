@@ -23,7 +23,13 @@ import { RiverScene, clamp01, segment, smoothstep } from '../lib/riverScene';
  * escritos direto no DOM) — nenhum re-render do React por frame.
  */
 
-/* `cards`: o par que ladeia o cisne em cada ato — [esquerda, direita] */
+/* `cards`: o par que ladeia o cisne em cada ato — [esquerda, direita].
+   `image` (opcional): foto vertical (~3:4) que preenche o card, com o texto
+   sobre um degradê na base. Para as definitivas, coloque os arquivos em
+   /public/about/ (ex.: '/about/quem-somos-1.webp', 680×900) e descreva-as em
+   `imageAlt`. Sem `image`, o card volta ao vidro original. */
+const demoImage = (seed) => `https://picsum.photos/seed/swn-${seed}/680/900.webp`;
+
 const ACTS = [
   {
     num: '01',
@@ -32,55 +38,52 @@ const ACTS = [
     cards: [
       {
         title: 'Do improviso à sofisticação.',
+        image: demoImage('studio'),
+        imageAlt: '',
         text: 'Criamos softwares, sites e experiências digitais para empresas que querem trocar o amadorismo por um padrão de entrega à altura da própria marca.'
       },
       {
         title: 'Beleza de cisne. Precisão de relojoaria.',
+        image: demoImage('craft'),
+        imageAlt: '',
         text: 'Cada projeto nasce de um briefing claro e termina em um código limpo e eficiente. Ambos arquitetados em conjunto pela nossa equipe, sem nenhuma ponta solta.'
       }
     ]
   },
   {
     num: '02',
-    word: 'Como trabalhamos?',
-    caption: 'Diagnóstico, planejamento, construção e lançamento. Sem etapa pulada.',
-    cards: [
-      {
-        title: 'Antes do resultado.',
-        text: 'Entendemos seu negócio, público e suas metas. Você acompanha o projeto sendo desenvolvido em tempo real, cada etapa passa pela sua aprovação até a entrega, na data acordada.'
-      },
-      {
-        title: 'Depois do resultado.',
-        text: 'Continuidade, juntos! Suporte técnico, atualizações de segurança e monitoramento.'
-      }
-    ]
-  },
-  {
-    num: '03',
     word: 'O que muda para você?',
     caption: 'Resultado.',
     cards: [
       {
         title: 'Um dos seus maiores ativos',
+        image: demoImage('growth'),
+        imageAlt: '',
         text: 'Estrutura e excelência. Melhorando seus processos, captação ou conversão.'
       },
       {
         title: 'O que o tempo confirma, não desmonta',
+        image: demoImage('timeless'),
+        imageAlt: '',
         text: 'Projetos sólidos. O que nasce de critério não volta para a mesa depois. Passado um ano, você olha e ainda concorda com tudo, atemporal.'
       }
     ]
   }
 ];
 
-/* Linha do tempo — progresso da seção (0 = fixou na tela, 1 = vai soltar) */
+/* Linha do tempo — progresso da seção (0 = fixou na tela, 1 = vai soltar).
+   Calibrada para a altura da seção no CSS (.swan-river): com dois pontos, o
+   desenho, a distância entre as paradas e a saída mantêm o mesmo ritmo em vh
+   de rolagem que tinham com três. Mudou um, revise o outro. */
 const TIMELINE = {
-  horizon: [-0.06, 0.06],
-  ridge: [0.04, 0.15],
-  water: [0.02, 0.22],
-  stroke: [0.03, 0.21],
-  fill: [0.16, 0.25],
-  reflection: [0.2, 0.3],
-  acts: [0.37, 0.61, 0.85] // pontos da barra: cada um é uma parada do scroll
+  horizon: [-0.08, 0.08],
+  ridge: [0.05, 0.2],
+  water: [0.03, 0.29],
+  stroke: [0.04, 0.275],
+  fill: [0.21, 0.33],
+  reflection: [0.26, 0.39],
+  halo: [-0.05, 0.33],
+  acts: [0.485, 0.8] // pontos da barra (um em cada ponta): cada um é uma parada do scroll
 };
 
 /* O SWAN_PATH tem 5 subpaths; cada um vira uma "caneta" com sua janela no
@@ -125,10 +128,20 @@ const CARD_DRIFT = 36;     // px que a correnteza desloca o card na entrada/saí
 const CARD_OUT_S = 0.9;    // depois disso o par que saiu volta ao estado inicial
 const CARD_MAX_W = 340;
 const CARD_MIN_W = 240;    // abaixo disso o par desce para baixo da água
-const SWAN_HALF_W = 384;   // meia largura do cisne no viewBox (x 119–886)
+const CARD_RATIO = 1.1;    // card com foto: retrato (altura / largura)
+const CARD_MIN_RATIO = 1.05; // sem altura sobrando, estreita antes de deitar
+const CARD_MIN_H = 110;    // piso do card com foto (empilhado, telas baixas)
+const CARD_TEXT_MIN_H = 170; // abaixo disso o card com foto mostra só o título
+const CARD_STACK_MAX_W = 600; // largura do par empilhado (CSS: .is-cards-stacked)
+const CARD_STACK_GAP = 12;
+const HAS_MEDIA = ACTS.some((act) => act.cards.some((card) => card.image));
+const SWAN_EXTENT = [119, 886]; // laterais do cisne no viewBox (fallback do getBBox)
+const SWAN_GLOW_PX = 8;    // o brilho do traço avança um pouco além do path
+const CARD_EDGE_MIN = 28;  // folga mínima entre o card e o cisne / a borda
 const CARD_ANCHOR_Y = 520; // altura do cisne (viewBox) onde os cards se alinham
 const SIDES = ['left', 'right'];
 
+const clampTo = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
 const easeInExit = (t) => Math.pow(t, 2.2);
 
@@ -197,16 +210,35 @@ const writeGlyph = (el, st, g) => {
 };
 
 const RiverCard = ({ card, side }) => (
-  <article className={`swan-river-card swan-river-card--${side}`}>
+  <article className={`swan-river-card swan-river-card--${side}${card.image ? ' swan-river-card--media' : ''}`}>
     <div className="swan-river-card-body">
       <div className="swan-river-card-shell">
-        <h4 className="swan-river-card-title">{card.title}</h4>
-        <p className="swan-river-card-text">{card.text}</p>
+        {card.image && (
+          <div className="swan-river-card-media">
+            <img
+              className="swan-river-card-img"
+              src={card.image}
+              alt={card.imageAlt || ''}
+              width="680"
+              height="900"
+              loading="lazy"
+              decoding="async"
+              draggable="false"
+            />
+          </div>
+        )}
+        <div className="swan-river-card-content">
+          <h4 className="swan-river-card-title">{card.title}</h4>
+          <p className="swan-river-card-text">{card.text}</p>
+        </div>
       </div>
-      <span className="swan-river-card-star" aria-hidden="true">
-        <span className="swan-river-card-flare" />
-        <CompassStar className="swan-river-card-star-icon" />
-      </span>
+      {/* a foto já dá vida ao card: a estrela fica só no card de vidro */}
+      {!card.image && (
+        <span className="swan-river-card-star" aria-hidden="true">
+          <span className="swan-river-card-flare" />
+          <CompassStar className="swan-river-card-star-icon" />
+        </span>
+      )}
     </div>
   </article>
 );
@@ -249,6 +281,15 @@ const SwanRiver = () => {
     const tips = Array.from(tipsGroupRef.current.children);
     const lengths = strokes.map((el) => el.getTotalLength());
 
+    /* Laterais reais do cisne (viewBox), medidas do próprio path */
+    let swanExtent = SWAN_EXTENT;
+    try {
+      const b = strokeGroupRef.current.getBBox();
+      if (b.width > 0) swanExtent = [b.x, b.x + b.width];
+    } catch {
+      /* sem layout (ex.: aba oculta): fica a medida de referência */
+    }
+
     let L = null;
     let range = 1;
 
@@ -269,25 +310,55 @@ const SwanRiver = () => {
       echoGroupRef.current.setAttribute('stroke-width', (ECHO_PX / L.scale).toFixed(2));
       for (const tip of tips) tip.setAttribute('r', (TIP_PX / L.scale).toFixed(2));
 
-      /* Cards: ladeiam o cisne a uma distância fixa dele. Sem largura
-         suficiente nas laterais, o par desce para baixo da linha d'água. */
-      const gap = SWAN_HALF_W * L.scale + Math.min(110, Math.max(40, W * 0.045));
-      const cardW = Math.min(CARD_MAX_W, W / 2 - gap - Math.max(20, W * 0.03));
+      /* Cards: cada um centralizado na faixa entre a lateral do cisne e a
+         borda da tela — mesma distância dos dois lados. Faixas iguais, cards
+         iguais: vale a mais estreita. Sem largura suficiente, o par desce
+         para baixo da linha d'água. */
+      const swanL = L.swanX + swanExtent[0] * L.scale - SWAN_GLOW_PX;
+      const swanR = L.swanX + swanExtent[1] * L.scale + SWAN_GLOW_PX;
+      const lane = Math.min(swanL, W - swanR);
+      const edge = Math.max(CARD_EDGE_MIN, W * 0.025);
+      let cardW = Math.min(CARD_MAX_W, lane - edge * 2);
       const stacked = cardW < CARD_MIN_W;
-      sticky.style.setProperty('--river-card-gap', `${gap.toFixed(1)}px`);
-      sticky.style.setProperty('--river-card-w', `${Math.max(0, cardW).toFixed(1)}px`);
-      sticky.style.setProperty('--river-water-y', `${L.waterY}px`);
-      sticky.classList.toggle('is-cards-stacked', stacked);
-      sticky.classList.toggle('is-cards-tight', stacked && H - L.waterY < 210);
+      /* teto dos cards: acima da barra de progresso (CSS: bottom + altura) */
+      const floor = H - clampTo(H * 0.04, 20, 36) - 10 - 18;
+      const anchor = L.swanY + CARD_ANCHOR_Y * L.scale;
+      let cardY = anchor;
+      let mediaH = 0;
 
-      /* nas laterais, alinhados ao cisne — mas sempre abaixo do texto do ato */
-      let cardY = L.swanY + CARD_ANCHOR_Y * L.scale;
-      if (!stacked) {
+      if (stacked) {
+        /* abaixo da linha d'água, lado a lado, até a barra */
+        const colW = (Math.min(W - 32, CARD_STACK_MAX_W) - CARD_STACK_GAP) / 2;
+        const top = L.waterY + clampTo(H * 0.035, 20, 36);
+        mediaH = Math.max(CARD_MIN_H, Math.min(colW * CARD_RATIO, floor - top));
+      } else {
+        /* nas laterais, alinhados ao cisne — mas sempre abaixo do texto do ato */
         const textH = Math.max(0, ...actRefs.current.map((el) => el?.offsetHeight || 0));
-        const cardH = Math.max(0, ...pairRefs.current.map((el) => el?.firstElementChild?.offsetHeight || 0));
-        cardY = Math.max(cardY, L.textY + textH / 2 + 20 + cardH / 2);
+        const ceil = L.textY + textH / 2 + 20;
+        let cardH;
+        if (HAS_MEDIA) {
+          /* retrato: se a altura não comporta, estreita em vez de achatar */
+          mediaH = Math.max(CARD_MIN_H, Math.min(cardW * CARD_RATIO, floor - ceil));
+          cardW = Math.min(cardW, mediaH / CARD_MIN_RATIO);
+          cardH = mediaH;
+        } else {
+          cardH = Math.max(0, ...pairRefs.current.map((el) => el?.firstElementChild?.offsetHeight || 0));
+        }
+        cardY = Math.max(anchor, ceil + cardH / 2);
+        if (HAS_MEDIA) cardY = Math.min(cardY, Math.max(ceil + cardH / 2, floor - cardH / 2));
       }
+
+      sticky.style.setProperty('--river-card-lx', `${(swanL / 2).toFixed(1)}px`);
+      sticky.style.setProperty('--river-card-rx', `${((swanR + W) / 2).toFixed(1)}px`);
+      sticky.style.setProperty('--river-card-w', `${Math.max(0, cardW).toFixed(1)}px`);
+      sticky.style.setProperty('--river-card-h', `${mediaH.toFixed(1)}px`);
+      sticky.style.setProperty('--river-water-y', `${L.waterY}px`);
       sticky.style.setProperty('--river-card-y', `${cardY.toFixed(1)}px`);
+      sticky.classList.toggle('is-cards-stacked', stacked);
+      sticky.classList.toggle(
+        'is-cards-tight',
+        stacked && (HAS_MEDIA ? mediaH < CARD_TEXT_MIN_H : H - L.waterY < 210)
+      );
     };
 
     /* Cada caneta avança na sua janela; a ponta luminosa acompanha o traço */
@@ -692,7 +763,7 @@ const SwanRiver = () => {
         water: segment(p, ...TIMELINE.water),
         reflection: smoothstep(segment(p, ...TIMELINE.reflection)),
         presence: fill,
-        halo: smoothstep(segment(p, -0.04, 0.25))
+        halo: smoothstep(segment(p, ...TIMELINE.halo))
       });
 
       /* cisne SVG: traço, preenchimento e pose do nado */

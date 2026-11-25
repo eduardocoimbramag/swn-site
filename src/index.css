@@ -820,7 +820,8 @@ button {
 /* ---------- Swan river — scroll-drawn scene (draw → still → swim) ---------- */
 .swan-river {
   position: relative;
-  height: 460vh;
+  /* Paired with TIMELINE in SwanRiver.jsx — change one, revisit the other */
+  height: 375vh;
 }
 
 .swan-river-sticky {
@@ -987,14 +988,15 @@ button {
   position: absolute;
   top: var(--river-card-y, 55%);
   width: var(--river-card-w, 320px);
-  translate: 0 -50%;
+  /* centered on its lane (between the swan's side and the screen edge) */
+  translate: -50% -50%;
   opacity: 0;
   transform: translate3d(var(--enter-x, 36px), 18px, 0) scale(0.965);
 }
 
 .swan-river-card--left {
   --dx: 0.06s;
-  right: calc(50% + var(--river-card-gap, 220px));
+  left: var(--river-card-lx, 20%);
 }
 
 .swan-river-card--right {
@@ -1005,7 +1007,7 @@ button {
   --glint-from: 170%;
   --glint-to: -70%;
   --twinkle: 6.2s;
-  left: calc(50% + var(--river-card-gap, 220px));
+  left: var(--river-card-rx, 80%);
   text-align: right;
 }
 
@@ -1260,6 +1262,98 @@ button {
   }
 }
 
+
+/* ----- Media cards — a portrait photo fills the card and fades into the
+   night; the copy rests on the gradient at the bottom. Same choreography as
+   the glass card: the star's light reveals the photo, which settles from a
+   slight zoom. JS sets the height (--river-card-h) so the portrait always
+   fits between the act text and the progress rail. ----- */
+.swan-river-card--media .swan-river-card-shell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: var(--river-card-h, 440px);
+  padding: 0;
+  border-color: rgba(131, 223, 233, 0.12);
+  background: var(--bg-elev);
+  box-shadow:
+    0 40px 80px -40px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.swan-river-card-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.swan-river-card-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.82) contrast(1.06) brightness(0.92);
+  transform: scale(1.12);
+  transform-origin: 50% 35%;
+  user-select: none;
+}
+
+.swan-river-pair.is-shown .swan-river-card-img,
+.swan-river-pair.is-leaving .swan-river-card-img {
+  transform: scale(1.02);
+}
+
+.swan-river-pair.is-shown .swan-river-card-img {
+  transition: transform 2.6s var(--ease-swan) calc(var(--d) + 0.1s);
+}
+
+/* Fade: a soft veil at the top, night rising from the bottom for the copy,
+   and a cyan breath from the star corner to tie the photo to the scene */
+.swan-river-card-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(110% 60% at var(--ox) 0%, rgba(131, 223, 233, 0.16), transparent 62%),
+    linear-gradient(
+      180deg,
+      rgba(5, 7, 8, 0.28) 0%,
+      rgba(5, 7, 8, 0) 20%,
+      rgba(5, 7, 8, 0.12) 38%,
+      rgba(5, 7, 8, 0.62) 58%,
+      rgba(5, 7, 8, 0.9) 76%,
+      rgba(5, 7, 8, 0.97) 100%
+    );
+}
+
+.swan-river-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.swan-river-card--media .swan-river-card-content {
+  padding: 1.35rem 1.5rem 1.45rem;
+}
+
+.swan-river-card--media .swan-river-card-title {
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+
+.swan-river-card--media .swan-river-card-text {
+  font-size: clamp(0.78rem, 0.2vw + 0.7rem, 0.86rem);
+  color: rgba(255, 255, 255, 0.76);
+}
+
+/* Top-edge lights stay above the photo */
+.swan-river-card--media .swan-river-card-shell::before,
+.swan-river-card--media .swan-river-card-shell::after {
+  z-index: 2;
+}
+
 /* Narrow scenes: the pair moves below the waterline, side by side */
 .swan-river-sticky.is-cards-stacked .swan-river-pair {
   inset: auto;
@@ -1285,6 +1379,10 @@ button {
 .swan-river-sticky.is-cards-stacked .swan-river-card-shell {
   padding: 1rem 1rem 1.05rem;
   border-radius: var(--r-md);
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card--media .swan-river-card-shell {
+  padding: 0;
 }
 
 .swan-river-sticky.is-cards-stacked .swan-river-card-shell::before,
@@ -1318,6 +1416,14 @@ button {
 
 .swan-river-sticky.is-cards-stacked .swan-river-card--right .swan-river-card-star {
   --nudge: -5px;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card--media .swan-river-card-content {
+  padding: 0.9rem 0.95rem 1rem;
+}
+
+.swan-river-sticky.is-cards-stacked .swan-river-card--media .swan-river-card-text {
+  -webkit-line-clamp: 3;
 }
 
 /* Short scenes: titles only, so the pair never reaches the progress rail */
@@ -1436,7 +1542,7 @@ button {
   position: relative;
   top: auto;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(1.5rem, 3vw, 3rem);
   max-width: 1320px;
   margin: 0 auto;
@@ -1458,6 +1564,7 @@ button {
   position: relative;
   inset: auto;
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   width: 100%;
   margin-top: 1.5rem;
@@ -1479,6 +1586,15 @@ button {
   --reveal: 100%;
 }
 
+.swan-river-acts--static .swan-river-card--media .swan-river-card-shell {
+  height: auto;
+  aspect-ratio: 10 / 11;
+}
+
+.swan-river-acts--static .swan-river-card-img {
+  transform: none;
+}
+
 .swan-river-acts--static .swan-river-card-title,
 .swan-river-acts--static .swan-river-card-text,
 .swan-river-acts--static .swan-river-card-star {
@@ -1490,7 +1606,7 @@ button {
 /* ----- Responsive ----- */
 @media (max-width: 1280px) and (min-width: 1025px) {
   .swan-river {
-    height: 440vh;
+    height: 360vh;
   }
 
   .swan-river-act-word {
@@ -1500,7 +1616,7 @@ button {
 
 @media (max-width: 1024px) {
   .swan-river {
-    height: 420vh;
+    height: 345vh;
   }
 
   .swan-river-act-word {
@@ -1508,13 +1624,17 @@ button {
   }
 
   .swan-river-acts--static {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 560px) {
-  .swan-river-acts--static {
+  .swan-river-acts--static .swan-river-pair {
     grid-template-columns: 1fr;
+  }
+
+  .swan-river-acts--static .swan-river-card--media .swan-river-card-shell {
+    aspect-ratio: 4 / 5;
   }
 }
 
